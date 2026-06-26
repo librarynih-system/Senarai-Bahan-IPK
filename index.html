@@ -7,6 +7,8 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Tambahan: Chart.js untuk Dashboard Charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -51,7 +53,6 @@
 
         /* Utilities */
         .hidden-view { display: none !important; }
-        .truncate-cell { max-width: 150px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         
         /* Animations */
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
@@ -80,7 +81,6 @@
 
     <!-- LOGIN VIEW -->
     <div id="loginView" class="fixed inset-0 z-50 flex items-center justify-center bg-background hidden-view">
-        <!-- Abstract Background Decoration -->
         <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
             <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-teal-100/50 blur-[100px]"></div>
             <div class="absolute bottom-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-indigo-100/50 blur-[100px]"></div>
@@ -207,8 +207,8 @@
                 
                 <!-- TAB: DASHBOARD -->
                 <div id="tab-dashboard" class="tab-content hidden-view fade-in">
-                    <!-- Top Summary Cards -->
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <!-- Top Summary Cards (4 Cards) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                         <div class="glass-card p-6 flex flex-col border border-borderLight">
                             <div class="flex justify-between items-start mb-4">
                                 <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-lg">
@@ -220,6 +220,18 @@
                             <p class="text-sm font-medium text-textMuted">Total Records In System</p>
                         </div>
                         
+                        <div class="glass-card p-6 flex flex-col border border-primary/20 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+                            <div class="flex justify-between items-start mb-4 relative z-10">
+                                <div class="w-10 h-10 rounded-xl bg-teal-50 text-primary flex items-center justify-center text-lg">
+                                    <i class="fas fa-check-double"></i>
+                                </div>
+                                <span class="text-xs font-semibold px-2 py-1 bg-teal-50 text-primary rounded-md border border-teal-200">Completed</span>
+                            </div>
+                            <h3 class="text-3xl font-bold text-textMain mb-1 relative z-10" id="stat-completed">0</h3>
+                            <p class="text-sm font-medium text-textMuted relative z-10">Approved Records</p>
+                        </div>
+
                         <div class="glass-card p-6 flex flex-col border border-amber-100 relative overflow-hidden">
                             <div class="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
                             <div class="flex justify-between items-start mb-4 relative z-10">
@@ -232,16 +244,32 @@
                             <p class="text-sm font-medium text-textMuted relative z-10">Pending Approval</p>
                         </div>
 
-                        <div class="glass-card p-6 flex flex-col border border-primary/20 relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
+                        <div class="glass-card p-6 flex flex-col border border-indigo-100 relative overflow-hidden">
+                            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
                             <div class="flex justify-between items-start mb-4 relative z-10">
-                                <div class="w-10 h-10 rounded-xl bg-teal-50 text-primary flex items-center justify-center text-lg">
-                                    <i class="fas fa-check-double"></i>
+                                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
+                                    <i class="fas fa-users"></i>
                                 </div>
-                                <span class="text-xs font-semibold px-2 py-1 bg-teal-50 text-primary rounded-md border border-teal-200">Completed</span>
+                                <span class="text-xs font-semibold px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md border border-indigo-200">Active</span>
                             </div>
-                            <h3 class="text-3xl font-bold text-textMain mb-1 relative z-10" id="stat-completed">0</h3>
-                            <p class="text-sm font-medium text-textMuted relative z-10">Approved Records</p>
+                            <h3 class="text-3xl font-bold text-textMain mb-1 relative z-10" id="stat-staff">0</h3>
+                            <p class="text-sm font-medium text-textMuted relative z-10">Active Staff</p>
+                        </div>
+                    </div>
+
+                    <!-- Charts Section -->
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+                        <div class="glass-card p-6 border border-borderLight">
+                            <h3 class="font-bold text-textMain mb-4">Pie Chart Distribution</h3>
+                            <div class="relative h-64 w-full">
+                                <canvas id="pieChart"></canvas>
+                            </div>
+                        </div>
+                        <div class="glass-card p-6 border border-borderLight">
+                            <h3 class="font-bold text-textMain mb-4">Staff Performance Chart</h3>
+                            <div class="relative h-64 w-full">
+                                <canvas id="barChart"></canvas>
+                            </div>
                         </div>
                     </div>
 
@@ -277,8 +305,9 @@
                         </div>
 
                         <!-- Table Container -->
-                        <div class="flex-1 overflow-y-auto bg-white relative">
-                            <table class="w-full text-left border-collapse" style="table-layout: fixed;">
+                        <div class="flex-1 overflow-y-auto overflow-x-auto bg-white relative">
+                            <!-- Removed table-layout: fixed to allow auto column sizing -->
+                            <table class="w-full text-left border-collapse min-w-[800px]">
                                 <thead class="bg-slate-50/80 backdrop-blur-sm sticky top-0 z-10 shadow-[0_1px_2px_rgba(0,0,0,0.05)]" id="tableHead">
                                     <!-- Diisi oleh JS -->
                                 </thead>
@@ -317,52 +346,6 @@
         </main>
     </div>
 
-    <!-- EDIT MODAL -->
-    <div id="editModal" class="fixed inset-0 z-[60] flex items-center justify-center bg-slate-900/40 backdrop-blur-sm hidden-view transition-opacity">
-        <div class="glass-card p-0 w-full max-w-lg mx-4 bg-surface relative shadow-float overflow-hidden scale-100 transition-transform">
-            <!-- Modal Header -->
-            <div class="bg-slate-50 px-6 py-4 border-b border-borderLight flex justify-between items-center">
-                <h2 class="text-lg font-bold text-textMain flex items-center gap-2">
-                    <i class="fas fa-edit text-primary"></i> Edit Record
-                </h2>
-                <button type="button" onclick="window.closeEditModal()" class="text-textMuted hover:text-red-500 transition-colors w-8 h-8 flex items-center justify-center rounded-full hover:bg-red-50">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            
-            <form id="editForm" onsubmit="window.handleSave(event)" class="p-6">
-                <input type="hidden" id="editOriginalControlNo">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-5">
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold text-textMuted uppercase mb-1.5">Staff Name</label>
-                        <input type="text" id="editStaffName" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm transition-all">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-textMuted uppercase mb-1.5">Control No</label>
-                        <input type="text" id="editControlNo" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm transition-all font-mono">
-                    </div>
-                    <div>
-                        <label class="block text-xs font-semibold text-textMuted uppercase mb-1.5">Call No</label>
-                        <input type="text" id="editCallNo" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm transition-all font-mono">
-                    </div>
-                    <div class="md:col-span-2">
-                        <label class="block text-xs font-semibold text-textMuted uppercase mb-1.5">Status</label>
-                        <select id="editStatus" required class="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm transition-all cursor-pointer">
-                            <option value="Pending">Pending</option>
-                            <option value="Pending Edit">Pending Edit</option>
-                            <option value="Pending For Approval">Pending For Approval</option>
-                            <option value="Completed">Completed</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="flex justify-end gap-3 pt-4 border-t border-borderLight">
-                    <button type="button" onclick="window.closeEditModal()" class="px-5 py-2 border border-slate-300 text-textMain rounded-lg hover:bg-slate-50 text-sm font-semibold transition-colors">Cancel</button>
-                    <button type="submit" class="px-5 py-2 bg-textMain hover:bg-black text-white rounded-lg text-sm font-semibold transition-all shadow-md">Save Changes</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <!-- JAVASCRIPT LOGIC -->
     <script>
         // ==========================================
@@ -384,14 +367,18 @@
             filteredData: [],
             currentDataMode: 'rekod',
             searchQuery: '',
-            sortKey: null,
-            sortAsc: true,
+            // NO MORE SORTING STATE
             expandedRows: new Set(),
+            editingControlNo: null, // NEW: Untuk simpan ID row yang sedang di edit
             
             // Pagination
             currentPage: 1,
             itemsPerPage: 15
         };
+
+        // Chart instances
+        let pieChartInstance = null;
+        let barChartInstance = null;
 
         // EXPOSE FUNCTIONS TO GLOBAL WINDOW SO ONCLICK CAN FIND THEM
         window.toggleSidebar = function() {
@@ -407,6 +394,9 @@
         };
 
         window.toggleRow = function(id) {
+            // Jangan benarkan expand jika sedang edit
+            if(state.editingControlNo === id) return;
+
             const row = document.getElementById('details-' + id);
             const icon = document.getElementById('icon-' + id);
             if (!row) return;
@@ -477,20 +467,10 @@
             switchTab('dashboard');
         }
 
-        function setLoading(isLoading) {
-            const overlay = document.getElementById('loadingOverlay');
-            if(isLoading) {
-                overlay.classList.remove('hidden-view');
-                setTimeout(() => overlay.style.opacity = '1', 10);
-            } else {
-                overlay.style.opacity = '0';
-                setTimeout(() => overlay.classList.add('hidden-view'), 300);
-            }
-        }
-
         // ==========================================
-        // BACKEND API CALLS (UNCHANGED CORE LOGIC)
+        // BACKEND API CALLS & SYNC
         // ==========================================
+        // Background loading function tanpa mengganggu UI semasa edit
         async function apiCall(action, extraPayload = {}) {
             if(GAS_URL.includes('PLEASE_ENTER')) {
                 console.warn('API Mocked - No URL');
@@ -509,7 +489,10 @@
         }
 
         async function loadDataFromBackend() {
-            setLoading(true);
+            const overlay = document.getElementById('loadingOverlay');
+            overlay.classList.remove('hidden-view');
+            setTimeout(() => overlay.style.opacity = '1', 10);
+
             const resRecords = await apiCall('getInitialData');
             if(resRecords.status === 'success') state.records = resRecords.data || [];
 
@@ -520,7 +503,8 @@
             if(state.activeTab === 'staff') renderStaffDirectory();
             else if(state.activeTab !== 'dashboard') processTableData();
             
-            setLoading(false);
+            overlay.style.opacity = '0';
+            setTimeout(() => overlay.classList.add('hidden-view'), 300);
         }
 
         // ==========================================
@@ -535,6 +519,7 @@
 
         window.switchTab = function(tabId) {
             state.activeTab = tabId;
+            state.editingControlNo = null; // Reset edit mode
             
             document.querySelectorAll('.nav-btn').forEach(btn => {
                 btn.classList.remove('bg-slate-100', 'text-textMain');
@@ -561,30 +546,33 @@
                 document.getElementById('searchInput').value = '';
                 state.searchQuery = '';
                 state.currentPage = 1;
-                state.sortKey = null;
                 processTableData();
             }
         };
 
+        // ==========================================
+        // DASHBOARD & CHARTS
+        // ==========================================
         function updateDashboardStats() {
             const total = state.records.length;
             const pending = state.records.filter(r => r.STATUS === 'Pending For Approval').length;
             const completed = state.records.filter(r => r.STATUS === 'Completed').length;
+            const activeStaff = state.staff.length;
 
             document.getElementById('stat-total').innerText = total;
             document.getElementById('stat-pending').innerText = pending;
             document.getElementById('stat-completed').innerText = completed;
+            document.getElementById('stat-staff').innerText = activeStaff; // New Staff Card
 
-            // Update badge on sidebar
             const badge = document.getElementById('nav-badge-approval');
             if (pending > 0) { badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
 
             renderRecentActivity();
+            updateCharts();
         }
 
         function renderRecentActivity() {
             const list = document.getElementById('dashboard-recent-list');
-            // get 5 most recent based on array position (mock logic)
             const recent = [...state.records].reverse().slice(0, 5);
             
             if(recent.length === 0) {
@@ -601,21 +589,87 @@
                 html += `
                 <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                     <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full ${statusColor} flex items-center justify-center font-bold text-sm">
+                        <div class="w-10 h-10 rounded-full ${statusColor} flex items-center justify-center font-bold text-sm flex-shrink-0">
                             ${r['STAFF NAME'] ? r['STAFF NAME'].charAt(0).toUpperCase() : '?'}
                         </div>
-                        <div>
+                        <div class="overflow-hidden">
                             <p class="text-sm font-bold text-textMain">${r['CONTROL NO'] || 'Unknown'}</p>
-                            <p class="text-xs text-textMuted">${r.TITLE ? r.TITLE.substring(0,40)+'...' : 'No Title'} • ${r['STAFF NAME'] || 'Unknown User'}</p>
+                            <p class="text-xs text-textMuted whitespace-nowrap overflow-hidden text-ellipsis">${r.TITLE ? r.TITLE : 'No Title'} • ${r['STAFF NAME'] || 'Unknown User'}</p>
                         </div>
                     </div>
-                    <span class="text-xs font-semibold px-2.5 py-1 rounded-md border ${statusColor} border-opacity-50">
+                    <span class="text-xs font-semibold px-2.5 py-1 rounded-md border ${statusColor} border-opacity-50 whitespace-nowrap ml-4">
                         ${r.STATUS || 'Pending'}
                     </span>
                 </div>
                 `;
             });
             list.innerHTML = html;
+        }
+
+        function updateCharts() {
+            if (!document.getElementById('pieChart')) return;
+            
+            const statuses = {};
+            const staffs = {};
+            
+            state.records.forEach(r => {
+                const s = r.STATUS || 'Pending';
+                statuses[s] = (statuses[s] || 0) + 1;
+                
+                if (s === 'Completed' && r['STAFF NAME']) {
+                    staffs[r['STAFF NAME']] = (staffs[r['STAFF NAME']] || 0) + 1;
+                }
+            });
+
+            // Pie Chart - Status Distribution
+            const ctxPie = document.getElementById('pieChart').getContext('2d');
+            if (pieChartInstance) pieChartInstance.destroy();
+            pieChartInstance = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statuses),
+                    datasets: [{
+                        data: Object.values(statuses),
+                        backgroundColor: ['#0F766E', '#F59E0B', '#14B8A6', '#64748B', '#EF4444'],
+                        borderWidth: 0,
+                        hoverOffset: 4
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { 
+                        legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter' } } } 
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            // Bar Chart - Staff Performance (Completed)
+            const ctxBar = document.getElementById('barChart').getContext('2d');
+            if (barChartInstance) barChartInstance.destroy();
+            barChartInstance = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(staffs).length ? Object.keys(staffs) : ['No Data'],
+                    datasets: [{
+                        label: 'Completed Tasks',
+                        data: Object.keys(staffs).length ? Object.values(staffs) : [0],
+                        backgroundColor: '#14B8A6',
+                        borderRadius: 4,
+                        barPercentage: 0.5
+                    }]
+                },
+                options: { 
+                    responsive: true, 
+                    maintainAspectRatio: false, 
+                    plugins: { legend: { display: false } },
+                    scales: { 
+                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Inter' } }, grid: { borderDash: [2, 4] } },
+                        x: { ticks: { font: { family: 'Inter' } }, grid: { display: false } }
+                    } 
+                }
+            });
         }
 
         // ==========================================
@@ -626,7 +680,6 @@
             if(file) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Simpan sementara di LocalStorage memandangkan backend tidak boleh disentuh
                     localStorage.setItem('avatar_' + staffName, e.target.result);
                     renderStaffDirectory();
                 };
@@ -704,129 +757,139 @@
         }
 
         // ==========================================
-        // WORKFLOW ACTION HANDLERS (EXPOSED TO WINDOW)
+        // INLINE EDIT & WORKFLOW HANDLERS
         // ==========================================
-        window.closeEditModal = function() {
-            const modal = document.getElementById('editModal');
-            modal.style.opacity = '0';
-            modal.firstElementChild.style.transform = 'scale(0.95)';
-            setTimeout(() => {
-                modal.classList.add('hidden-view');
-                document.getElementById('editForm').reset();
-            }, 200);
-        };
 
         window.handleEdit = function(controlNo) {
-            const record = state.records.find(r => r['CONTROL NO'] === controlNo);
-            if(!record) return;
-            
-            document.getElementById('editOriginalControlNo').value = record['CONTROL NO'];
-            document.getElementById('editStaffName').value = record['STAFF NAME'] || '';
-            document.getElementById('editControlNo').value = record['CONTROL NO'] || '';
-            document.getElementById('editCallNo').value = record['CALL NO 060/050'] || '';
-            document.getElementById('editStatus').value = record['STATUS'] || 'Pending';
-            
-            const modal = document.getElementById('editModal');
-            modal.classList.remove('hidden-view');
-            
-            // Animation frames for smooth entry
-            requestAnimationFrame(() => {
-                modal.style.opacity = '1';
-                modal.firstElementChild.style.transform = 'scale(1)';
-            });
+            state.editingControlNo = controlNo;
+            renderTable(); // Re-render locally sangat pantas, tiada loading screen.
         };
 
-        window.handleSave = async function(e) {
-            e.preventDefault();
-            const originalControlNo = document.getElementById('editOriginalControlNo').value;
-            const staffName = document.getElementById('editStaffName').value;
-            const controlNo = document.getElementById('editControlNo').value;
-            const callNo = document.getElementById('editCallNo').value;
-            const status = document.getElementById('editStatus').value;
+        window.handleInlineCancel = function() {
+            state.editingControlNo = null;
+            renderTable();
+        };
+
+        window.handleInlineSave = async function(originalControlNo) {
+            // Dapatkan value daripada inputs
+            const btnContainer = document.getElementById(`actions-${originalControlNo}`);
+            if(btnContainer) btnContainer.innerHTML = `<i class="fas fa-spinner fa-spin text-primary"></i> Saving...`;
+
+            const cNoInput = document.getElementById(`inline-cno-${originalControlNo}`).value;
+            const staffInput = document.getElementById(`inline-staff-${originalControlNo}`).value;
+            const titleInput = document.getElementById(`inline-title-${originalControlNo}`).value;
+            const statusInput = document.getElementById(`inline-status-${originalControlNo}`).value;
             
-            setLoading(true);
-            const res = await apiCall('updateRecord', { originalControlNo, staffName, controlNo, callNo, status });
+            // Simpan original data in case fail
+            const record = state.records.find(r => r['CONTROL NO'] === originalControlNo);
+            const originalCallNo = record ? (record['CALL NO 060/050'] || '') : '';
+
+            // Hantar ke backend tanpa ganggu UI dengan loading overlay (Seamless)
+            const res = await apiCall('updateRecord', { 
+                originalControlNo: originalControlNo, 
+                staffName: staffInput, 
+                controlNo: cNoInput, 
+                callNo: originalCallNo, // Kekalkan Call No asal jika tak diedit dalam inline main row
+                status: statusInput 
+            });
             
             if(res.status === 'success') {
-                const record = state.records.find(r => r['CONTROL NO'] === originalControlNo);
                 if(record) {
-                    record['STAFF NAME'] = staffName;
-                    record['CONTROL NO'] = controlNo;
-                    record['CALL NO 060/050'] = callNo;
-                    record['STATUS'] = status;
+                    record['CONTROL NO'] = cNoInput;
+                    record['STAFF NAME'] = staffInput;
+                    record['TITLE'] = titleInput; // Update memori tempatan
+                    record['STATUS'] = statusInput;
                 }
-                window.closeEditModal();
+                state.editingControlNo = null;
                 updateDashboardStats();
-                processTableData();
+                processTableData(); // Akan refresh view serta merta
             } else {
                 alert("Error: " + res.message);
+                state.editingControlNo = null;
+                renderTable(); // Revert back view if fail
             }
-            setLoading(false);
         };
 
         window.handleComplete = async function(controlNo) {
-            if(!confirm("Submit for approval?")) return;
-            setLoading(true);
+            // Tandakan row sebagai loading (Optimistic UI)
+            const record = state.records.find(r => r['CONTROL NO'] === controlNo);
+            if(!record) return;
+
+            // Simpan status asal untuk fallback
+            const oldStatus = record['STATUS'];
+            
+            // Terus Update UI Memori (Sangat Laju)
+            record['STATUS'] = 'Pending For Approval';
+            record['STAFF NAME'] = state.user.username;
+            updateDashboardStats();
+            processTableData(); 
+
+            // Hantar API di background
             const res = await apiCall('completeRecord', { controlNo: controlNo, user: state.user.username });
             if(res.status === 'success') {
-                const record = state.records.find(r => r['CONTROL NO'] === controlNo);
-                if(record) {
-                    record['STATUS'] = 'Pending For Approval';
-                    record['DATE'] = res.date;
-                    record['STAFF NAME'] = state.user.username;
-                }
+                record['DATE'] = res.date;
+                processTableData(); // Refesh tarikh baru masuk
+            } else {
+                // Fallback jika API gagal
+                record['STATUS'] = oldStatus;
                 updateDashboardStats();
-                processTableData();
+                processTableData(); 
+                alert("Error saving Complete status: " + res.message);
             }
-            setLoading(false);
         };
 
         window.handleApprove = async function(controlNo) {
-            if(!confirm("Approve this record?")) return;
-            setLoading(true);
+            const record = state.records.find(r => r['CONTROL NO'] === controlNo);
+            if(!record) return;
+            const oldStatus = record['STATUS'];
+
+            // Optimistic UI Update
+            record['STATUS'] = 'Completed';
+            record['APPROVED BY'] = state.user.username;
+            updateDashboardStats();
+            processTableData();
+
             const res = await apiCall('approveRecord', { controlNo: controlNo, user: state.user.username });
             if(res.status === 'success') {
-                const record = state.records.find(r => r['CONTROL NO'] === controlNo);
-                if(record) {
-                    record['STATUS'] = 'Completed';
-                    record['APPROVED BY'] = state.user.username;
-                    record['APPROVED DATE'] = res.date;
-                }
+                record['APPROVED DATE'] = res.date;
+            } else {
+                record['STATUS'] = oldStatus;
                 updateDashboardStats();
                 processTableData();
+                alert("Error approving record: " + res.message);
             }
-            setLoading(false);
         };
 
         window.handleReopen = async function(controlNo) {
             if(!confirm("Reopen to Pending Edit?")) return;
-            setLoading(true);
+            
+            const record = state.records.find(r => r['CONTROL NO'] === controlNo);
+            if(!record) return;
+            const oldStatus = record['STATUS'];
+
+            // Optimistic UI Update
+            record['STATUS'] = 'Pending Edit';
+            record['APPROVED BY'] = '';
+            record['APPROVED DATE'] = '';
+            updateDashboardStats();
+            processTableData();
+
             const res = await apiCall('reopenRecord', { controlNo: controlNo });
-            if(res.status === 'success') {
-                const record = state.records.find(r => r['CONTROL NO'] === controlNo);
-                if(record) {
-                    record['STATUS'] = 'Pending Edit';
-                    record['APPROVED BY'] = '';
-                    record['APPROVED DATE'] = '';
-                }
+            if(res.status !== 'success') {
+                record['STATUS'] = oldStatus;
                 updateDashboardStats();
                 processTableData();
+                alert("Error reopening record: " + res.message);
             }
-            setLoading(false);
         };
 
         // ==========================================
-        // TABLE LOGIC (SEARCH, SORT, PAGINATION)
+        // TABLE LOGIC (SEARCH, PAGINATION)
+        // No Sorting functionality as requested
         // ==========================================
         window.handleSearch = function() {
             state.searchQuery = document.getElementById('searchInput').value.toLowerCase();
             state.currentPage = 1;
-            processTableData();
-        };
-
-        window.handleSort = function(key) {
-            if (state.sortKey === key) state.sortAsc = !state.sortAsc;
-            else { state.sortKey = key; state.sortAsc = true; }
             processTableData();
         };
 
@@ -846,16 +909,8 @@
             if (state.searchQuery) {
                 data = data.filter(row => Object.values(row).some(val => String(val).toLowerCase().includes(state.searchQuery)));
             }
-
-            if (state.sortKey) {
-                data.sort((a, b) => {
-                    const valA = String(a[state.sortKey] || '').toLowerCase();
-                    const valB = String(b[state.sortKey] || '').toLowerCase();
-                    if (valA < valB) return state.sortAsc ? -1 : 1;
-                    if (valA > valB) return state.sortAsc ? 1 : -1;
-                    return 0;
-                });
-            }
+            
+            // TIADA LAGI LOGIK SORTING DI SINI (Kekal original spreadsheet order)
 
             state.filteredData = data;
             renderTable();
@@ -873,102 +928,137 @@
                 return;
             }
 
-            // Compact layout columns
-            const mainCols = ["CONTROL NO", "STAFF NAME", "TITLE", "STATUS", "ACTION"];
+            // Columns definition (No sorting events needed)
+            const mainCols = ["CONTROL NO", "TITLE", "STAFF NAME", "STATUS", "ACTION"];
             
-            // Header
-            let headHTML = '<tr><th class="w-10"></th>'; // Expander icon column
+            // Render Header
+            let headHTML = '<tr><th class="w-10"></th>'; 
             mainCols.forEach(h => {
                 let widthClass = "";
-                if(h === "ACTION") widthClass = "w-40 text-right";
-                if(h === "STATUS") widthClass = "w-36";
-                if(h === "CONTROL NO") widthClass = "w-32";
+                // Set width secara bebas untuk membenarkan responsif auto wrap
+                if(h === "ACTION") widthClass = "w-[180px] text-right";
+                else if(h === "STATUS") widthClass = "w-[150px]";
+                else if(h === "CONTROL NO") widthClass = "w-[140px]";
+                else if(h === "STAFF NAME") widthClass = "w-[180px]";
+                else widthClass = "w-auto"; // TITLE biarkan auto sizing & wrap
 
-                if (h === 'ACTION') {
-                    headHTML += `<th class="p-3 text-xs font-bold text-textMuted uppercase tracking-wider ${widthClass}">Action</th>`;
-                } else {
-                    const icon = state.sortKey === h ? (state.sortAsc ? 'fa-arrow-up text-primary' : 'fa-arrow-down text-primary') : 'fa-sort text-slate-300';
-                    headHTML += `
-                        <th onclick="window.handleSort('${h}')" class="p-3 text-xs font-bold text-textMuted uppercase tracking-wider cursor-pointer hover:bg-slate-100 transition-colors select-none ${widthClass}">
-                            <div class="flex items-center gap-2">${h} <i class="fas ${icon} text-[10px]"></i></div>
-                        </th>
-                    `;
-                }
+                headHTML += `<th class="p-3 text-xs font-bold text-textMuted uppercase tracking-wider ${widthClass}">${h === 'ACTION' ? 'Action' : h}</th>`;
             });
             headHTML += '</tr>';
             thead.innerHTML = headHTML;
 
-            // Body
+            // Render Body
             const startIndex = (state.currentPage - 1) * state.itemsPerPage;
             const endIndex = startIndex + state.itemsPerPage;
             const paginatedData = state.filteredData.slice(startIndex, endIndex);
 
             let bodyHTML = '';
+            
+            // Loop for each row
             paginatedData.forEach(row => {
                 const cNo = row['CONTROL NO'];
-                
-                // Main Row
-                bodyHTML += `<tr onclick="window.toggleRow('${cNo}')" class="hover:bg-slate-50 transition-colors text-sm text-textMain cursor-pointer group">`;
-                bodyHTML += `<td class="p-3 text-center text-textMuted group-hover:text-primary"><i id="icon-${cNo}" class="fas fa-chevron-right text-xs transition-transform"></i></td>`;
-                
-                mainCols.forEach(h => {
-                    if (h === 'ACTION') {
-                        let btn = '<div class="flex items-center justify-end gap-2">';
-                        const statusVal = row['STATUS'];
-                        
-                        if (state.currentDataMode === 'rekod') {
-                            if (statusVal !== 'Completed') {
-                                if (state.user.role === 'Staff' || state.user.role === 'Admin') {
-                                    btn += `<button onclick="event.stopPropagation(); window.handleEdit('${cNo}')" class="text-primary hover:bg-teal-50 px-3 py-1.5 rounded-md border border-primary/30 text-xs font-semibold transition-all">Edit</button>`;
-                                    btn += `<button onclick="event.stopPropagation(); window.handleComplete('${cNo}')" class="bg-primary hover:bg-teal-800 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition-all">Complete</button>`;
-                                }
-                            } else {
-                                if (state.user.role === 'Admin') {
-                                    btn += `<button onclick="event.stopPropagation(); window.handleReopen('${cNo}')" class="text-amber-600 hover:bg-amber-50 px-3 py-1.5 rounded-md border border-amber-300 text-xs font-semibold transition-all">Reopen</button>`;
-                                }
-                            }
-                        } else if (state.currentDataMode === 'approval') {
-                            if (statusVal === 'Pending For Approval' && (state.user.role === 'Pelulus' || state.user.role === 'Admin')) {
-                                btn += `<button onclick="event.stopPropagation(); window.handleApprove('${cNo}')" class="bg-primary hover:bg-teal-800 text-white px-4 py-1.5 rounded-md text-xs font-semibold shadow-sm transition-all"><i class="fas fa-check mr-1"></i> Approve</button>`;
-                            }
-                        }
-                        btn += '</div>';
-                        bodyHTML += `<td class="p-3">${btn}</td>`;
-                    } else if (h === 'STATUS') {
-                        const statusVal = row[h] || 'Pending';
-                        let style = "bg-slate-100 text-slate-600 border-slate-200";
-                        if(statusVal === 'Completed') style = "bg-teal-50 text-teal-700 border-teal-200";
-                        else if(statusVal === 'Pending For Approval') style = "bg-amber-50 text-amber-700 border-amber-200";
-                        else if(statusVal === 'Pending Edit') style = "bg-red-50 text-red-700 border-red-200";
-                        
-                        bodyHTML += `<td class="p-3"><span class="px-2.5 py-1 rounded-md text-xs font-semibold border ${style}">${statusVal}</span></td>`;
-                    } else if (h === 'TITLE') {
-                        bodyHTML += `<td class="p-3 text-textMuted font-medium truncate-cell" title="${row[h] || '-'}">${row[h] || '-'}</td>`;
-                    } else {
-                        bodyHTML += `<td class="p-3 font-medium">${row[h] || '-'}</td>`;
-                    }
-                });
-                bodyHTML += '</tr>';
+                const isEditing = state.editingControlNo === cNo;
 
-                // Expanded Details Row
-                bodyHTML += `
-                <tr id="details-${cNo}" class="hidden bg-slate-50/50 border-b border-borderLight shadow-inner">
-                    <td></td>
-                    <td colspan="${mainCols.length}">
-                        <div class="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm fade-in">
-                            <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Date</p><p class="font-medium text-textMain">${row['DATE'] || '-'}</p></div>
-                            <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Call No 060/050</p><p class="font-mono font-medium text-textMain bg-white border border-slate-200 px-2 py-1 rounded inline-block">${row['CALL NO 060/050'] || '-'}</p></div>
-                            <div class="md:col-span-2"><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Full Title</p><p class="font-medium text-textMain">${row['TITLE'] || '-'}</p></div>
-                            <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Approved By</p><p class="font-medium text-textMain">${row['APPROVED BY'] || '-'}</p></div>
-                            <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Approved Date</p><p class="font-medium text-textMain">${row['APPROVED DATE'] || '-'}</p></div>
+                if (isEditing) {
+                    // ----------------------------------------------------
+                    // INLINE EDIT MODE ROW
+                    // ----------------------------------------------------
+                    // Sediakan option Staff
+                    const staffOpts = state.staff.map(s => `<option value="${s.NAME}" ${s.NAME===row['STAFF NAME']?'selected':''}>${s.NAME}</option>`).join('');
+                    // Sediakan option Status
+                    const statuses = ['Pending', 'Pending Edit', 'Pending For Approval', 'Completed'];
+                    const statusOpts = statuses.map(s => `<option value="${s}" ${s===row['STATUS']?'selected':''}>${s}</option>`).join('');
+
+                    bodyHTML += `<tr class="bg-indigo-50/40 text-sm text-textMain border-l-4 border-primary transition-all">`;
+                    bodyHTML += `<td class="p-3 text-center"><i class="fas fa-edit text-primary text-xs"></i></td>`;
+                    
+                    // Input Control No
+                    bodyHTML += `<td class="p-3 align-top"><input type="text" id="inline-cno-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded shadow-sm text-sm focus:ring-2 focus:ring-primary/20 outline-none font-mono" value="${cNo}"></td>`;
+                    // Input Title (Textarea auto wrap)
+                    bodyHTML += `<td class="p-3 align-top"><textarea id="inline-title-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded shadow-sm text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none leading-snug" rows="2">${row['TITLE']||''}</textarea></td>`;
+                    // Input Staff (Dropdown)
+                    bodyHTML += `<td class="p-3 align-top"><select id="inline-staff-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded shadow-sm text-sm focus:ring-2 focus:ring-primary/20 outline-none bg-white"><option value="">Select...</option>${staffOpts}</select></td>`;
+                    // Input Status (Dropdown)
+                    bodyHTML += `<td class="p-3 align-top"><select id="inline-status-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded shadow-sm text-sm focus:ring-2 focus:ring-primary/20 outline-none bg-white">${statusOpts}</select></td>`;
+                    
+                    // Buttons Save/Cancel
+                    bodyHTML += `<td class="p-3 align-top text-right" id="actions-${cNo}">
+                        <div class="flex items-center justify-end gap-1.5">
+                            <button onclick="window.handleInlineSave('${cNo}')" class="bg-primary hover:bg-teal-800 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition-all">Save</button>
+                            <button onclick="window.handleInlineCancel()" class="bg-white border border-slate-300 text-textMuted hover:bg-slate-50 px-3 py-1.5 rounded-md text-xs font-semibold transition-all">Cancel</button>
                         </div>
-                    </td>
-                </tr>
-                `;
+                    </td>`;
+                    bodyHTML += `</tr>`;
+
+                } else {
+                    // ----------------------------------------------------
+                    // NORMAL READ-ONLY ROW
+                    // ----------------------------------------------------
+                    bodyHTML += `<tr onclick="window.toggleRow('${cNo}')" class="hover:bg-slate-50 transition-colors text-sm text-textMain cursor-pointer group">`;
+                    bodyHTML += `<td class="p-3 text-center text-textMuted group-hover:text-primary"><i id="icon-${cNo}" class="fas fa-chevron-right text-xs transition-transform"></i></td>`;
+                    
+                    mainCols.forEach(h => {
+                        if (h === 'ACTION') {
+                            let btn = '<div class="flex items-center justify-end gap-2">';
+                            const statusVal = row['STATUS'];
+                            
+                            if (state.currentDataMode === 'rekod') {
+                                if (statusVal !== 'Completed') {
+                                    if (state.user.role === 'Staff' || state.user.role === 'Admin') {
+                                        // Butang Edit Inline
+                                        btn += `<button onclick="event.stopPropagation(); window.handleEdit('${cNo}')" class="text-primary hover:bg-teal-50 px-3 py-1.5 rounded-md border border-primary/30 text-xs font-semibold transition-all">Edit</button>`;
+                                        // Butang Complete
+                                        btn += `<button onclick="event.stopPropagation(); window.handleComplete('${cNo}')" class="bg-primary hover:bg-teal-800 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition-all">Complete</button>`;
+                                    }
+                                } else {
+                                    if (state.user.role === 'Admin') {
+                                        btn += `<button onclick="event.stopPropagation(); window.handleReopen('${cNo}')" class="text-amber-600 hover:bg-amber-50 px-3 py-1.5 rounded-md border border-amber-300 text-xs font-semibold transition-all">Reopen</button>`;
+                                    }
+                                }
+                            } else if (state.currentDataMode === 'approval') {
+                                if (statusVal === 'Pending For Approval' && (state.user.role === 'Pelulus' || state.user.role === 'Admin')) {
+                                    btn += `<button onclick="event.stopPropagation(); window.handleApprove('${cNo}')" class="bg-primary hover:bg-teal-800 text-white px-4 py-1.5 rounded-md text-xs font-semibold shadow-sm transition-all"><i class="fas fa-check mr-1"></i> Approve</button>`;
+                                }
+                            }
+                            btn += '</div>';
+                            bodyHTML += `<td class="p-3 align-top">${btn}</td>`;
+                        } else if (h === 'STATUS') {
+                            const statusVal = row[h] || 'Pending';
+                            let style = "bg-slate-100 text-slate-600 border-slate-200";
+                            if(statusVal === 'Completed') style = "bg-teal-50 text-teal-700 border-teal-200";
+                            else if(statusVal === 'Pending For Approval') style = "bg-amber-50 text-amber-700 border-amber-200";
+                            else if(statusVal === 'Pending Edit') style = "bg-red-50 text-red-700 border-red-200";
+                            
+                            bodyHTML += `<td class="p-3 align-top"><span class="px-2.5 py-1 rounded-md text-xs font-semibold border ${style}">${statusVal}</span></td>`;
+                        } else if (h === 'TITLE') {
+                            // TITLE Menggunakan auto wrap / whitespace-normal supaya panjang penuh dipaparkan
+                            bodyHTML += `<td class="p-3 align-top text-textMuted font-medium whitespace-normal break-words leading-snug">${row[h] || '-'}</td>`;
+                        } else {
+                            bodyHTML += `<td class="p-3 align-top font-medium">${row[h] || '-'}</td>`;
+                        }
+                    });
+                    bodyHTML += '</tr>';
+
+                    // Expanded Details Row (Read-only view)
+                    bodyHTML += `
+                    <tr id="details-${cNo}" class="hidden bg-slate-50/50 border-b border-borderLight shadow-inner">
+                        <td></td>
+                        <td colspan="${mainCols.length}">
+                            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm fade-in">
+                                <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Date</p><p class="font-medium text-textMain">${row['DATE'] || '-'}</p></div>
+                                <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Call No 060/050</p><p class="font-mono font-medium text-textMain bg-white border border-slate-200 px-2 py-1 rounded inline-block shadow-sm">${row['CALL NO 060/050'] || '-'}</p></div>
+                                <div class="md:col-span-2"><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Full Title Verification</p><p class="font-medium text-textMain whitespace-normal">${row['TITLE'] || '-'}</p></div>
+                                <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Approved By</p><p class="font-medium text-textMain">${row['APPROVED BY'] || '-'}</p></div>
+                                <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Approved Date</p><p class="font-medium text-textMain">${row['APPROVED DATE'] || '-'}</p></div>
+                            </div>
+                        </td>
+                    </tr>
+                    `;
+                }
             });
             tbody.innerHTML = bodyHTML;
 
-            // Info
+            // Update Pagination Info
             document.getElementById('tableRecordCount').innerText = `${state.filteredData.length} records`;
             const endDisplay = Math.min(endIndex, state.filteredData.length);
             document.getElementById('paginationInfo').innerText = `Showing ${startIndex + 1} to ${endDisplay} of ${state.filteredData.length}`;
