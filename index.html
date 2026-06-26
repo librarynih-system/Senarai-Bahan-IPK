@@ -6,8 +6,8 @@
     <title>Enterprise Document Management</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Tambahan: Chart.js untuk Dashboard Charts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- Chart.js untuk Dashboard Charts -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         tailwind.config = {
@@ -17,17 +17,18 @@
                         sans: ['Inter', 'sans-serif'],
                     },
                     colors: {
-                        primary: '#0F766E', // Teal 700
-                        primaryLight: '#14B8A6', // Teal 500
+                        primary: '#4F46E5', // Indigo 600
+                        primaryLight: '#818CF8', // Indigo 400
+                        sidebar: '#1E1B4B', // Dark Indigo
+                        tableHeader: '#1E3A8A', // Blue 900
                         surface: '#FFFFFF',
                         background: '#F8FAFC', // Slate 50
-                        borderLight: '#E2E8F0',
-                        textMain: '#1E293B',
+                        borderLight: '#F1F5F9',
+                        textMain: '#0F172A',
                         textMuted: '#64748B'
                     },
                     boxShadow: {
-                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.05)',
-                        'float': '0 10px 30px -5px rgba(0, 0, 0, 0.08)',
+                        'soft': '0 4px 20px -2px rgba(0, 0, 0, 0.03)',
                     }
                 }
             }
@@ -36,13 +37,11 @@
     <style>
         body { font-family: 'Inter', sans-serif; background-color: #F8FAFC; }
         
-        /* Modern Glass Card */
         .glass-card {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            background: #FFFFFF;
+            border: 1px solid #F1F5F9;
             box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.03);
-            border-radius: 16px;
+            border-radius: 12px;
         }
 
         /* Custom Scrollbar */
@@ -51,52 +50,29 @@
         ::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 10px; }
         ::-webkit-scrollbar-thumb:hover { background: #94A3B8; }
 
-        /* Utilities */
         .hidden-view { display: none !important; }
-        
-        /* Animations */
         .fade-in { animation: fadeIn 0.3s ease-in-out; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* Sidebar transitions */
-        .sidebar-expanded { width: 260px; }
-        .sidebar-collapsed { width: 80px; }
-        .sidebar-text { transition: opacity 0.2s; }
-        .sidebar-collapsed .sidebar-text { opacity: 0; display: none; }
-        
-        /* Tooltip for collapsed sidebar */
-        .nav-tooltip {
-            position: absolute; left: 70px; background: #1E293B; color: white; padding: 6px 12px;
-            border-radius: 6px; font-size: 12px; pointer-events: none; opacity: 0;
-            transform: translateX(-10px); transition: all 0.2s; z-index: 50; white-space: nowrap;
-        }
-        .sidebar-collapsed .group:hover .nav-tooltip { opacity: 1; transform: translateX(0); }
-
-        /* Loading Skeleton */
-        .skeleton { background: #E2E8F0; animation: pulse 1.5s infinite ease-in-out; border-radius: 4px; }
-        @keyframes pulse { 0% { opacity: 0.6; } 50% { opacity: 1; } 100% { opacity: 0.6; } }
+        /* Sidebar Item Active state */
+        .sidebar-btn.active { background: rgba(255,255,255,0.1); color: #fff; border-left: 4px solid #818CF8; }
     </style>
 </head>
 <body class="text-textMain h-screen overflow-hidden flex selection:bg-primaryLight selection:text-white">
 
     <!-- LOGIN VIEW -->
     <div id="loginView" class="fixed inset-0 z-50 flex items-center justify-center bg-background hidden-view">
-        <div class="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-            <div class="absolute -top-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-teal-100/50 blur-[100px]"></div>
-            <div class="absolute bottom-[10%] -right-[10%] w-[40%] h-[40%] rounded-full bg-indigo-100/50 blur-[100px]"></div>
-        </div>
-
-        <div class="glass-card p-10 w-full max-w-md mx-4 relative z-10 border border-white">
+        <div class="glass-card p-10 w-full max-w-md mx-4 relative z-10">
             <div class="text-center mb-10">
-                <div class="w-16 h-16 bg-gradient-to-br from-primary to-primaryLight text-white rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg transform rotate-3">
-                    <i class="fas fa-layer-group text-2xl -rotate-3"></i>
+                <div class="w-16 h-16 bg-primary text-white rounded-2xl flex items-center justify-center mx-auto mb-5 shadow-lg">
+                    <i class="fas fa-book text-2xl"></i>
                 </div>
-                <h1 class="text-2xl font-bold tracking-tight">Welcome Back</h1>
-                <p class="text-textMuted text-sm mt-2">Enterprise Document System</p>
+                <h1 class="text-2xl font-bold tracking-tight text-sidebar">Library System</h1>
+                <p class="text-textMuted text-sm mt-2">Please login to continue</p>
             </div>
             <form id="loginForm" onsubmit="handleLogin(event)" class="space-y-5">
                 <div>
-                    <label class="block text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Select Account</label>
+                    <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Select Account</label>
                     <select id="username" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all cursor-pointer text-sm font-medium">
                         <option value="" disabled selected>Choose your account...</option>
                         <option value="Staff">Staff</option>
@@ -105,12 +81,11 @@
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-textMuted uppercase tracking-wider mb-2">Password</label>
+                    <label class="block text-xs font-semibold text-textMuted uppercase mb-2">Password</label>
                     <input type="password" id="password" required class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm font-medium" placeholder="••••••••">
                 </div>
-                <button type="submit" class="w-full bg-textMain hover:bg-black text-white font-medium py-3.5 rounded-xl transition-all shadow-md hover:shadow-lg mt-4 flex justify-center items-center gap-2">
-                    <span>Sign In</span>
-                    <i class="fas fa-arrow-right text-xs opacity-70"></i>
+                <button type="submit" class="w-full bg-primary hover:bg-indigo-700 text-white font-medium py-3.5 rounded-xl transition-all shadow-md mt-4">
+                    Sign In
                 </button>
             </form>
         </div>
@@ -119,63 +94,42 @@
     <!-- MAIN DASHBOARD VIEW -->
     <div id="mainView" class="w-full h-full flex hidden-view bg-background">
         
-        <!-- SIDEBAR -->
-        <aside id="sidebar" class="sidebar-expanded bg-surface border-r border-borderLight flex flex-col z-20 shadow-sm relative transition-all duration-300">
-            <!-- Header -->
-            <div class="h-16 flex items-center justify-between px-5 border-b border-borderLight">
-                <div class="flex items-center gap-3 overflow-hidden whitespace-nowrap">
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-primaryLight flex items-center justify-center text-white shadow-sm flex-shrink-0">
-                        <i class="fas fa-layer-group text-sm"></i>
+        <!-- SIDEBAR (NARROW DARK BLUE) -->
+        <aside class="w-[80px] bg-sidebar flex flex-col items-center py-6 z-20 shadow-xl flex-shrink-0">
+            <!-- Logo -->
+            <div class="w-12 h-12 bg-white/10 rounded-xl flex items-center justify-center text-white mb-8 shadow-sm">
+                <i class="fas fa-book text-xl"></i>
+            </div>
+            
+            <!-- Navigation Icons -->
+            <nav class="flex-1 w-full flex flex-col items-center space-y-2">
+                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="sidebar-btn w-full h-14 flex items-center justify-center text-slate-400 hover:text-white transition-all relative group">
+                    <i class="fas fa-th-large text-xl"></i>
+                    <span class="absolute left-20 bg-sidebar text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">Dashboard</span>
+                </button>
+                <button onclick="switchTab('rekod')" id="nav-rekod" class="sidebar-btn w-full h-14 flex items-center justify-center text-slate-400 hover:text-white transition-all relative group">
+                    <i class="fas fa-book-open text-xl"></i>
+                    <span class="absolute left-20 bg-sidebar text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">Records</span>
+                </button>
+                <button onclick="switchTab('approval')" id="nav-approval" class="sidebar-btn w-full h-14 flex items-center justify-center text-slate-400 hover:text-white transition-all relative group">
+                    <div class="relative">
+                        <i class="fas fa-check-circle text-xl"></i>
+                        <span id="nav-badge-approval" class="absolute -top-1 -right-1 w-2.5 h-2.5 bg-orange-500 rounded-full border-2 border-sidebar hidden"></span>
                     </div>
-                    <span class="text-sm font-bold tracking-wide sidebar-text">Enterprise</span>
-                </div>
-                <button onclick="window.toggleSidebar()" class="text-textMuted hover:text-primary transition-colors flex-shrink-0">
-                    <i class="fas fa-bars"></i>
+                    <span class="absolute left-20 bg-sidebar text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">Approvals</span>
                 </button>
-            </div>
-
-            <!-- User Profile -->
-            <div class="p-5 border-b border-borderLight flex items-center gap-3 overflow-hidden whitespace-nowrap">
-                <div class="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-primary font-bold shadow-inner flex-shrink-0" id="userInitial">U</div>
-                <div class="sidebar-text">
-                    <p class="text-sm font-bold" id="displayUsername">User</p>
-                    <p class="text-xs text-primary font-medium" id="displayRole">Role</p>
-                </div>
-            </div>
-
-            <!-- Navigation -->
-            <nav class="flex-1 px-3 py-4 space-y-1 overflow-y-auto overflow-x-hidden">
-                <button onclick="switchTab('dashboard')" id="nav-dashboard" class="nav-btn group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-textMuted hover:bg-slate-50 hover:text-textMain transition-all font-medium text-sm">
-                    <i class="fas fa-chart-pie w-5 text-center flex-shrink-0"></i>
-                    <span class="sidebar-text">Dashboard</span>
-                    <div class="nav-tooltip">Dashboard</div>
-                </button>
-                <button onclick="switchTab('rekod')" id="nav-rekod" class="nav-btn group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-textMuted hover:bg-slate-50 hover:text-textMain transition-all font-medium text-sm">
-                    <i class="fas fa-table w-5 text-center flex-shrink-0"></i>
-                    <span class="sidebar-text">All Records</span>
-                    <div class="nav-tooltip">All Records</div>
-                </button>
-                <button onclick="switchTab('approval')" id="nav-approval" class="nav-btn group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-textMuted hover:bg-slate-50 hover:text-textMain transition-all font-medium text-sm">
-                    <i class="fas fa-check-circle w-5 text-center flex-shrink-0"></i>
-                    <span class="sidebar-text">Approvals</span>
-                    <!-- Notification dot placeholder -->
-                    <span id="nav-badge-approval" class="sidebar-text hidden absolute right-3 w-2 h-2 rounded-full bg-amber-500"></span>
-                    <div class="nav-tooltip">Approvals</div>
-                </button>
-                <button onclick="switchTab('staff')" id="nav-staff" class="nav-btn group relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-textMuted hover:bg-slate-50 hover:text-textMain transition-all font-medium text-sm">
-                    <i class="fas fa-address-card w-5 text-center flex-shrink-0"></i>
-                    <span class="sidebar-text">Staff Directory</span>
-                    <div class="nav-tooltip">Staff Directory</div>
+                <button onclick="switchTab('staff')" id="nav-staff" class="sidebar-btn w-full h-14 flex items-center justify-center text-slate-400 hover:text-white transition-all relative group">
+                    <i class="fas fa-users-cog text-xl"></i>
+                    <span class="absolute left-20 bg-sidebar text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 pointer-events-none transition-opacity whitespace-nowrap z-50">Staff Directory</span>
                 </button>
             </nav>
 
-            <!-- Footer / Logout -->
-            <div class="p-4 border-t border-borderLight">
-                <button onclick="handleLogout()" class="group relative w-full flex items-center gap-3 px-3 py-2.5 text-red-500 hover:bg-red-50 rounded-xl transition-all font-medium text-sm">
-                    <i class="fas fa-sign-out-alt w-5 text-center flex-shrink-0"></i>
-                    <span class="sidebar-text">Logout</span>
-                    <div class="nav-tooltip bg-red-600">Logout</div>
+            <!-- Bottom User Profile / Logout -->
+            <div class="mt-auto w-full flex flex-col items-center space-y-4 pt-4">
+                <button onclick="handleLogout()" class="w-10 h-10 rounded-lg bg-white/5 text-slate-400 hover:text-red-400 hover:bg-white/10 transition-all flex items-center justify-center" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
                 </button>
+                <div class="w-10 h-10 rounded-full bg-primaryLight text-white flex items-center justify-center font-bold text-sm shadow-md" id="userInitial">U</div>
             </div>
         </aside>
 
@@ -184,104 +138,162 @@
             
             <!-- LOADING OVERLAY -->
             <div id="loadingOverlay" class="absolute inset-0 bg-white/60 backdrop-blur-sm z-30 flex items-center justify-center hidden-view transition-opacity duration-300">
-                <div class="glass-card p-6 flex flex-col items-center shadow-float">
+                <div class="glass-card p-6 flex flex-col items-center shadow-lg">
                     <div class="w-10 h-10 border-4 border-primary/20 border-t-primary rounded-full animate-spin mb-4"></div>
                     <p class="text-sm font-semibold text-textMain">Syncing data...</p>
                 </div>
             </div>
 
-            <!-- TOPBAR -->
-            <header class="h-16 bg-surface/80 backdrop-blur-md border-b border-borderLight flex items-center justify-between px-8 z-10 sticky top-0">
+            <!-- TOP HEADER -->
+            <header class="bg-white px-8 py-6 flex items-center justify-between border-b border-borderLight z-10 flex-shrink-0">
                 <div class="flex items-center gap-4">
-                    <h2 class="text-lg font-bold text-textMain" id="topbarTitle">Dashboard</h2>
-                </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-xs text-textMuted font-medium bg-slate-100 px-3 py-1.5 rounded-full flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span> System Online
+                    <div>
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-bars text-textMuted hidden md:block"></i>
+                            <h2 class="text-2xl font-bold text-sidebar" id="headerTitle">Welcome back, <span id="displayUsername" class="text-primary uppercase">USER</span> !</h2>
+                        </div>
+                        <p class="text-sm text-textMuted mt-1" id="headerSubtitle">Here is the summary of executive collection management today.</p>
                     </div>
+                </div>
+                <div class="flex items-center gap-6">
+                    <button class="w-10 h-10 rounded-full border border-slate-200 text-slate-400 flex items-center justify-center hover:bg-slate-50 transition-colors">
+                        <i class="far fa-moon"></i>
+                    </button>
+                    <div class="text-right">
+                        <p class="text-sm font-bold text-sidebar" id="currentTime">10:00:00 AM</p>
+                        <p class="text-xs font-semibold text-textMuted uppercase tracking-wider" id="currentDate">FRIDAY, 26 JUN 2026</p>
+                    </div>
+                    <div class="w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-lg shadow-md" id="userInitialTop">U</div>
                 </div>
             </header>
 
-            <!-- SCROLLABLE CONTENT -->
-            <div class="flex-1 overflow-y-auto p-6 md:p-8">
+            <!-- FILTERS & ACTIONS ROW -->
+            <div class="px-8 pt-6 pb-2 flex-shrink-0">
+                <div class="glass-card p-3 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div class="flex items-center gap-4 w-full md:w-auto">
+                        <span class="text-xs font-bold text-textMuted uppercase tracking-wider pl-2">Overview Filter:</span>
+                        
+                        <!-- Filter Dropdowns -->
+                        <select class="bg-white border border-slate-200 text-sm rounded-lg px-4 py-2 outline-none focus:border-primary cursor-pointer shadow-sm">
+                            <option>Staff: All</option>
+                        </select>
+                        <select class="bg-white border border-slate-200 text-sm rounded-lg px-4 py-2 outline-none focus:border-primary cursor-pointer shadow-sm">
+                            <option>Status: All</option>
+                        </select>
+                        <select class="bg-white border border-slate-200 text-sm rounded-lg px-4 py-2 outline-none focus:border-primary cursor-pointer shadow-sm">
+                            <option>Year: All</option>
+                        </select>
+                        
+                        <!-- Search Input (For Tables) -->
+                        <div id="searchContainer" class="relative hidden ml-2">
+                            <i class="fas fa-search absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 text-xs"></i>
+                            <input type="text" id="searchInput" placeholder="Search Title or Accession..." onkeyup="handleSearch()" class="pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-sm w-64 focus:outline-none focus:border-primary shadow-sm">
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center gap-3">
+                        <span class="text-xs font-semibold text-textMuted bg-slate-100 px-3 py-1.5 rounded-md hidden" id="tableRecordCount">0 records</span>
+                        <button onclick="loadDataFromBackend()" class="bg-primary hover:bg-indigo-700 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all shadow-md flex items-center gap-2">
+                            <i class="fas fa-sync-alt text-xs"></i> Sync
+                        </button>
+                        <button id="btnExport" class="bg-teal-500 hover:bg-teal-600 text-white px-5 py-2 rounded-lg text-sm font-semibold transition-all shadow-md items-center gap-2 hidden">
+                            <i class="fas fa-download text-xs"></i> Export
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SCROLLABLE CONTENT AREA -->
+            <div class="flex-1 overflow-y-auto px-8 pb-8 pt-4">
                 
                 <!-- TAB: DASHBOARD -->
                 <div id="tab-dashboard" class="tab-content hidden-view fade-in">
-                    <!-- Top Summary Cards (4 Cards) -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-                        <div class="glass-card p-6 flex flex-col border border-borderLight">
-                            <div class="flex justify-between items-start mb-4">
-                                <div class="w-10 h-10 rounded-xl bg-slate-100 text-slate-600 flex items-center justify-center text-lg">
-                                    <i class="fas fa-database"></i>
+                    <!-- Top Summary Cards (4 Cards) matching screenshot exactly -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-6">
+                        
+                        <!-- Total Records -->
+                        <div class="glass-card p-6 relative overflow-hidden flex flex-col justify-between">
+                            <div class="flex gap-4 items-start mb-2">
+                                <div class="w-12 h-12 rounded-xl bg-blue-500 text-white flex items-center justify-center text-xl shadow-md">
+                                    <i class="fas fa-server"></i>
                                 </div>
-                                <span class="text-xs font-semibold px-2 py-1 bg-slate-100 text-slate-600 rounded-md">Total</span>
+                                <div>
+                                    <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Total Records</p>
+                                    <h3 class="text-4xl font-extrabold text-sidebar" id="stat-total">0</h3>
+                                </div>
                             </div>
-                            <h3 class="text-3xl font-bold text-textMain mb-1" id="stat-total">0</h3>
-                            <p class="text-sm font-medium text-textMuted">Total Records In System</p>
+                            <p class="text-xs font-semibold text-green-500 mt-2"><i class="fas fa-arrow-up mr-1"></i> 12.5% vs last month</p>
+                            <!-- Decorative Wave Bottom -->
+                            <svg class="absolute bottom-0 left-0 w-full h-12 text-blue-100/50" preserveAspectRatio="none" viewBox="0 0 1440 320"><path fill="currentColor" fill-opacity="1" d="M0,288L48,272C96,256,192,224,288,197.3C384,171,480,149,576,165.3C672,181,768,235,864,250.7C960,267,1056,245,1152,250.7C1248,256,1344,288,1392,304L1440,320L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
                         </div>
                         
-                        <div class="glass-card p-6 flex flex-col border border-primary/20 relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-teal-50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
-                            <div class="flex justify-between items-start mb-4 relative z-10">
-                                <div class="w-10 h-10 rounded-xl bg-teal-50 text-primary flex items-center justify-center text-lg">
-                                    <i class="fas fa-check-double"></i>
+                        <!-- Completed -->
+                        <div class="glass-card p-6 relative overflow-hidden flex flex-col justify-between">
+                            <div class="flex gap-4 items-start mb-2">
+                                <div class="w-12 h-12 rounded-xl bg-emerald-500 text-white flex items-center justify-center text-xl shadow-md">
+                                    <i class="fas fa-check-circle"></i>
                                 </div>
-                                <span class="text-xs font-semibold px-2 py-1 bg-teal-50 text-primary rounded-md border border-teal-200">Completed</span>
+                                <div>
+                                    <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Completed</p>
+                                    <h3 class="text-4xl font-extrabold text-sidebar" id="stat-completed">0</h3>
+                                </div>
                             </div>
-                            <h3 class="text-3xl font-bold text-textMain mb-1 relative z-10" id="stat-completed">0</h3>
-                            <p class="text-sm font-medium text-textMuted relative z-10">Approved Records</p>
+                            <p class="text-xs font-semibold text-green-500 mt-2"><i class="fas fa-arrow-up mr-1"></i> 15.3% vs last month</p>
+                            <svg class="absolute bottom-0 left-0 w-full h-12 text-emerald-100/50" preserveAspectRatio="none" viewBox="0 0 1440 320"><path fill="currentColor" fill-opacity="1" d="M0,192L48,208C96,224,192,256,288,256C384,256,480,224,576,208C672,192,768,192,864,213.3C960,235,1056,277,1152,282.7C1248,288,1344,256,1392,240L1440,224L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
                         </div>
 
-                        <div class="glass-card p-6 flex flex-col border border-amber-100 relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-amber-50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
-                            <div class="flex justify-between items-start mb-4 relative z-10">
-                                <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-600 flex items-center justify-center text-lg">
+                        <!-- Pending Approval -->
+                        <div class="glass-card p-6 relative overflow-hidden flex flex-col justify-between">
+                            <div class="flex gap-4 items-start mb-2">
+                                <div class="w-12 h-12 rounded-xl bg-orange-500 text-white flex items-center justify-center text-xl shadow-md">
                                     <i class="fas fa-clock"></i>
                                 </div>
-                                <span class="text-xs font-semibold px-2 py-1 bg-amber-50 text-amber-600 rounded-md border border-amber-200">Action Needed</span>
+                                <div>
+                                    <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Pending Approval</p>
+                                    <h3 class="text-4xl font-extrabold text-sidebar" id="stat-pending">0</h3>
+                                </div>
                             </div>
-                            <h3 class="text-3xl font-bold text-textMain mb-1 relative z-10" id="stat-pending">0</h3>
-                            <p class="text-sm font-medium text-textMuted relative z-10">Pending Approval</p>
+                            <p class="text-xs font-semibold text-orange-500 mt-2"><i class="fas fa-arrow-down mr-1"></i> 8.1% vs last month</p>
+                            <svg class="absolute bottom-0 left-0 w-full h-12 text-orange-100/50" preserveAspectRatio="none" viewBox="0 0 1440 320"><path fill="currentColor" fill-opacity="1" d="M0,96L48,128C96,160,192,224,288,245.3C384,267,480,245,576,213.3C672,181,768,139,864,138.7C960,139,1056,181,1152,192C1248,203,1344,181,1392,170.7L1440,160L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
                         </div>
 
-                        <div class="glass-card p-6 flex flex-col border border-indigo-100 relative overflow-hidden">
-                            <div class="absolute top-0 right-0 w-32 h-32 bg-indigo-50 rounded-full blur-2xl -mr-10 -mt-10 pointer-events-none"></div>
-                            <div class="flex justify-between items-start mb-4 relative z-10">
-                                <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
-                                    <i class="fas fa-users"></i>
+                        <!-- Staff Active -->
+                        <div class="glass-card p-6 relative overflow-hidden flex flex-col justify-between">
+                            <div class="flex gap-4 items-start mb-2">
+                                <div class="w-12 h-12 rounded-xl bg-purple-600 text-white flex items-center justify-center text-xl shadow-md">
+                                    <i class="fas fa-user-friends"></i>
                                 </div>
-                                <span class="text-xs font-semibold px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md border border-indigo-200">Active</span>
+                                <div>
+                                    <p class="text-xs font-bold text-textMuted uppercase tracking-wider mb-1">Staff Active</p>
+                                    <h3 class="text-4xl font-extrabold text-sidebar" id="stat-staff">0</h3>
+                                </div>
                             </div>
-                            <h3 class="text-3xl font-bold text-textMain mb-1 relative z-10" id="stat-staff">0</h3>
-                            <p class="text-sm font-medium text-textMuted relative z-10">Active Staff</p>
+                            <p class="text-xs font-semibold text-green-500 mt-2"><i class="fas fa-arrow-up mr-1"></i> 3.2% vs last month</p>
+                            <svg class="absolute bottom-0 left-0 w-full h-12 text-purple-100/50" preserveAspectRatio="none" viewBox="0 0 1440 320"><path fill="currentColor" fill-opacity="1" d="M0,224L48,208C96,192,192,160,288,170.7C384,181,480,235,576,234.7C672,235,768,181,864,160C960,139,1056,149,1152,176C1248,203,1344,245,1392,266.7L1440,288L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
                         </div>
                     </div>
 
                     <!-- Charts Section -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                        <div class="glass-card p-6 border border-borderLight">
-                            <h3 class="font-bold text-textMain mb-4">Pie Chart Distribution</h3>
-                            <div class="relative h-64 w-full">
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        <div class="glass-card p-6 col-span-1 flex flex-col items-center">
+                            <h3 class="font-bold text-textMain self-start w-full mb-6">Distribution</h3>
+                            <div class="relative h-48 w-full flex justify-center">
                                 <canvas id="pieChart"></canvas>
                             </div>
-                        </div>
-                        <div class="glass-card p-6 border border-borderLight">
-                            <h3 class="font-bold text-textMain mb-4">Staff Performance Chart</h3>
-                            <div class="relative h-64 w-full">
-                                <canvas id="barChart"></canvas>
+                            <div class="flex gap-4 mt-6 text-xs font-semibold text-textMuted justify-center">
+                                <span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-emerald-500"></div>Completed</span>
+                                <span class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-orange-500"></div>Pending</span>
                             </div>
                         </div>
-                    </div>
-
-                    <!-- Recent Activity Section -->
-                    <div class="glass-card border border-borderLight overflow-hidden">
-                        <div class="px-6 py-4 border-b border-borderLight flex justify-between items-center bg-surface">
-                            <h3 class="font-bold text-textMain">Recent Activity</h3>
-                            <button onclick="switchTab('rekod')" class="text-sm text-primary hover:text-primaryLight font-medium">View All &rarr;</button>
-                        </div>
-                        <div class="p-0">
-                            <div class="divide-y divide-borderLight" id="dashboard-recent-list">
-                                <!-- Populated by JS -->
+                        <div class="glass-card p-6 col-span-1 lg:col-span-2">
+                            <div class="flex justify-between items-center mb-6">
+                                <h3 class="font-bold text-textMain">Staff Performance Trends</h3>
+                                <select class="bg-indigo-50 text-primary text-xs font-bold rounded-md px-3 py-1 outline-none">
+                                    <option>This Year</option>
+                                </select>
+                            </div>
+                            <div class="relative h-56 w-full">
+                                <canvas id="barChart"></canvas>
                             </div>
                         </div>
                     </div>
@@ -289,40 +301,26 @@
 
                 <!-- TAB: TABLE VIEWS (REKOD & APPROVAL) -->
                 <div id="tab-table" class="tab-content hidden-view h-full flex flex-col fade-in">
-                    <div class="glass-card flex flex-col h-[calc(100vh-140px)] border border-borderLight overflow-hidden">
-                        
-                        <!-- Toolbar -->
-                        <div class="p-4 border-b border-borderLight flex flex-col sm:flex-row items-center justify-between gap-4 bg-surface/50">
-                            <div class="relative w-full sm:w-80 group">
-                                <i class="fas fa-search absolute left-3.5 top-1/2 transform -translate-y-1/2 text-textMuted group-focus-within:text-primary transition-colors"></i>
-                                <input type="text" id="searchInput" placeholder="Search by name, control no..." onkeyup="handleSearch()" class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none text-sm transition-all shadow-sm">
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <span class="text-xs font-semibold text-textMuted bg-slate-100 px-3 py-1.5 rounded-md border border-slate-200" id="tableRecordCount">
-                                    0 records
-                                </span>
-                            </div>
-                        </div>
-
+                    <div class="glass-card flex flex-col h-[calc(100vh-210px)] overflow-hidden shadow-sm">
                         <!-- Table Container -->
                         <div class="flex-1 overflow-y-auto overflow-x-auto bg-white relative">
-                            <!-- Removed table-layout: fixed to allow auto column sizing -->
-                            <table class="w-full text-left border-collapse min-w-[800px]">
-                                <thead class="bg-slate-50/80 backdrop-blur-sm sticky top-0 z-10 shadow-[0_1px_2px_rgba(0,0,0,0.05)]" id="tableHead">
+                            <!-- Table tanpa sorting, column rapat -->
+                            <table class="w-full text-left border-collapse min-w-[1000px]">
+                                <thead class="bg-tableHeader text-white sticky top-0 z-10 shadow-sm" id="tableHead">
                                     <!-- Diisi oleh JS -->
                                 </thead>
-                                <tbody class="divide-y divide-borderLight" id="tableBody">
+                                <tbody class="divide-y divide-slate-100" id="tableBody">
                                     <!-- Diisi oleh JS -->
                                 </tbody>
                             </table>
                         </div>
 
-                        <!-- Pagination -->
-                        <div class="p-4 border-t border-borderLight bg-surface/50 flex items-center justify-between">
-                            <p class="text-xs font-medium text-textMuted" id="paginationInfo">Showing 0 to 0 of 0</p>
-                            <div class="flex gap-1 bg-white border border-slate-200 rounded-lg p-1 shadow-sm">
-                                <button onclick="window.changePage(-1)" class="px-3 py-1.5 rounded-md hover:bg-slate-100 text-textMain disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-sm"><i class="fas fa-chevron-left text-xs"></i></button>
-                                <button onclick="window.changePage(1)" class="px-3 py-1.5 rounded-md hover:bg-slate-100 text-textMain disabled:opacity-30 disabled:hover:bg-transparent transition-colors text-sm"><i class="fas fa-chevron-right text-xs"></i></button>
+                        <!-- Pagination Footer -->
+                        <div class="p-4 border-t border-slate-100 bg-white flex items-center justify-between">
+                            <p class="text-xs font-semibold text-textMuted" id="paginationInfo">Showing 0 to 0 of 0 records</p>
+                            <div class="flex gap-2">
+                                <button onclick="window.changePage(-1)" class="px-4 py-1.5 border border-slate-200 rounded-md hover:bg-slate-50 text-textMain font-semibold disabled:opacity-30 transition-colors text-xs">Previous</button>
+                                <button onclick="window.changePage(1)" class="px-4 py-1.5 border border-slate-200 rounded-md hover:bg-slate-50 text-textMain font-semibold disabled:opacity-30 transition-colors text-xs">Next</button>
                             </div>
                         </div>
                     </div>
@@ -332,11 +330,10 @@
                 <div id="tab-staff" class="tab-content hidden-view fade-in">
                     <div class="flex justify-between items-end mb-6">
                         <div>
-                            <h3 class="text-xl font-bold text-textMain">Team Directory</h3>
+                            <h3 class="text-xl font-bold text-sidebar">Team Directory</h3>
                             <p class="text-sm text-textMuted mt-1">Manage and view team members</p>
                         </div>
                     </div>
-                    <!-- CSS Grid for Cards -->
                     <div id="staffGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-10">
                         <!-- Populated by JS -->
                     </div>
@@ -361,54 +358,27 @@
             activeTab: 'dashboard',
             records: [],
             staff: [],
-            isSidebarOpen: true,
             
             // Table controls
             filteredData: [],
             currentDataMode: 'rekod',
             searchQuery: '',
-            // NO MORE SORTING STATE
-            expandedRows: new Set(),
-            editingControlNo: null, // NEW: Untuk simpan ID row yang sedang di edit
+            editingControlNo: null, // Inline edit row ID
             
             // Pagination
             currentPage: 1,
             itemsPerPage: 15
         };
 
-        // Chart instances
         let pieChartInstance = null;
         let barChartInstance = null;
 
-        // EXPOSE FUNCTIONS TO GLOBAL WINDOW SO ONCLICK CAN FIND THEM
-        window.toggleSidebar = function() {
-            state.isSidebarOpen = !state.isSidebarOpen;
-            const sidebar = document.getElementById('sidebar');
-            if(state.isSidebarOpen) {
-                sidebar.classList.remove('sidebar-collapsed');
-                sidebar.classList.add('sidebar-expanded');
-            } else {
-                sidebar.classList.remove('sidebar-expanded');
-                sidebar.classList.add('sidebar-collapsed');
-            }
-        };
-
-        window.toggleRow = function(id) {
-            // Jangan benarkan expand jika sedang edit
-            if(state.editingControlNo === id) return;
-
-            const row = document.getElementById('details-' + id);
-            const icon = document.getElementById('icon-' + id);
-            if (!row) return;
-            
-            if (row.classList.contains('hidden')) {
-                row.classList.remove('hidden');
-                icon.classList.replace('fa-chevron-right', 'fa-chevron-down');
-            } else {
-                row.classList.add('hidden');
-                icon.classList.replace('fa-chevron-down', 'fa-chevron-right');
-            }
-        };
+        // Header Clock updates
+        setInterval(() => {
+            const now = new Date();
+            document.getElementById('currentTime').innerText = now.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+            document.getElementById('currentDate').innerText = now.toLocaleDateString('en-US', { weekday: 'long', day: 'numeric', month: 'short', year: 'numeric' }).toUpperCase();
+        }, 1000);
 
         // ==========================================
         // INIT & AUTHENTICATION
@@ -462,15 +432,14 @@
         function showMainView() {
             document.getElementById('mainView').classList.remove('hidden-view');
             document.getElementById('displayUsername').innerText = state.user.username;
-            document.getElementById('displayRole').innerText = state.user.role;
             document.getElementById('userInitial').innerText = state.user.username.charAt(0).toUpperCase();
+            document.getElementById('userInitialTop').innerText = state.user.username.charAt(0).toUpperCase();
             switchTab('dashboard');
         }
 
         // ==========================================
         // BACKEND API CALLS & SYNC
         // ==========================================
-        // Background loading function tanpa mengganggu UI semasa edit
         async function apiCall(action, extraPayload = {}) {
             if(GAS_URL.includes('PLEASE_ENTER')) {
                 console.warn('API Mocked - No URL');
@@ -488,7 +457,7 @@
             }
         }
 
-        async function loadDataFromBackend() {
+        window.loadDataFromBackend = async function() {
             const overlay = document.getElementById('loadingOverlay');
             overlay.classList.remove('hidden-view');
             setTimeout(() => overlay.style.opacity = '1', 10);
@@ -505,33 +474,53 @@
             
             overlay.style.opacity = '0';
             setTimeout(() => overlay.classList.add('hidden-view'), 300);
-        }
+        };
 
         // ==========================================
         // UI & NAVIGATION
         // ==========================================
         const tabTitles = {
-            'dashboard': 'Dashboard Overview',
-            'rekod': 'All Records',
-            'approval': 'Pending Approvals',
-            'staff': 'Team Directory'
+            'dashboard': { title: 'Welcome back', subtitle: 'Here is the summary of executive collection management today.' },
+            'rekod': { title: 'Records', subtitle: 'Full list of all executive collections and status.' },
+            'approval': { title: 'Approvals Queue', subtitle: 'Action required for pending files.' },
+            'staff': { title: 'Staff Directory', subtitle: 'Manage team and profile access.' }
         };
 
         window.switchTab = function(tabId) {
             state.activeTab = tabId;
-            state.editingControlNo = null; // Reset edit mode
+            state.editingControlNo = null; 
             
-            document.querySelectorAll('.nav-btn').forEach(btn => {
-                btn.classList.remove('bg-slate-100', 'text-textMain');
-                btn.classList.add('text-textMuted');
+            document.querySelectorAll('.sidebar-btn').forEach(btn => {
+                btn.classList.remove('active');
             });
             const activeBtn = document.getElementById(`nav-${tabId}`);
             if(activeBtn) {
-                activeBtn.classList.add('bg-slate-100', 'text-textMain');
-                activeBtn.classList.remove('text-textMuted');
+                activeBtn.classList.add('active');
             }
 
-            document.getElementById('topbarTitle').innerText = tabTitles[tabId];
+            // Header mapping logic
+            if (tabId === 'dashboard') {
+                document.getElementById('headerTitle').innerHTML = `Welcome back, <span class="text-primary uppercase">${state.user.username}</span> !`;
+            } else {
+                document.getElementById('headerTitle').innerText = tabTitles[tabId].title;
+            }
+            document.getElementById('headerSubtitle').innerText = tabTitles[tabId].subtitle;
+
+            // Show/Hide search & export based on tab
+            const searchBox = document.getElementById('searchContainer');
+            const btnExport = document.getElementById('btnExport');
+            const tableRecordCount = document.getElementById('tableRecordCount');
+
+            if (tabId === 'rekod' || tabId === 'approval') {
+                searchBox.classList.remove('hidden');
+                btnExport.classList.remove('hidden');
+                tableRecordCount.classList.remove('hidden');
+            } else {
+                searchBox.classList.add('hidden');
+                btnExport.classList.add('hidden');
+                tableRecordCount.classList.add('hidden');
+            }
+
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden-view'));
             
             if (tabId === 'dashboard') {
@@ -562,48 +551,13 @@
             document.getElementById('stat-total').innerText = total;
             document.getElementById('stat-pending').innerText = pending;
             document.getElementById('stat-completed').innerText = completed;
-            document.getElementById('stat-staff').innerText = activeStaff; // New Staff Card
+            document.getElementById('stat-staff').innerText = activeStaff;
 
             const badge = document.getElementById('nav-badge-approval');
-            if (pending > 0) { badge.classList.remove('hidden'); } else { badge.classList.add('hidden'); }
+            if (pending > 0) badge.classList.remove('hidden'); 
+            else badge.classList.add('hidden');
 
-            renderRecentActivity();
             updateCharts();
-        }
-
-        function renderRecentActivity() {
-            const list = document.getElementById('dashboard-recent-list');
-            const recent = [...state.records].reverse().slice(0, 5);
-            
-            if(recent.length === 0) {
-                list.innerHTML = `<div class="p-4 text-sm text-textMuted">No recent activity.</div>`;
-                return;
-            }
-
-            let html = '';
-            recent.forEach(r => {
-                let statusColor = "bg-slate-100 text-slate-600";
-                if(r.STATUS === 'Completed') statusColor = "bg-teal-50 text-primary";
-                else if(r.STATUS === 'Pending For Approval') statusColor = "bg-amber-50 text-amber-600";
-                
-                html += `
-                <div class="px-6 py-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
-                    <div class="flex items-center gap-4">
-                        <div class="w-10 h-10 rounded-full ${statusColor} flex items-center justify-center font-bold text-sm flex-shrink-0">
-                            ${r['STAFF NAME'] ? r['STAFF NAME'].charAt(0).toUpperCase() : '?'}
-                        </div>
-                        <div class="overflow-hidden">
-                            <p class="text-sm font-bold text-textMain">${r['CONTROL NO'] || 'Unknown'}</p>
-                            <p class="text-xs text-textMuted whitespace-nowrap overflow-hidden text-ellipsis">${r.TITLE ? r.TITLE : 'No Title'} • ${r['STAFF NAME'] || 'Unknown User'}</p>
-                        </div>
-                    </div>
-                    <span class="text-xs font-semibold px-2.5 py-1 rounded-md border ${statusColor} border-opacity-50 whitespace-nowrap ml-4">
-                        ${r.STATUS || 'Pending'}
-                    </span>
-                </div>
-                `;
-            });
-            list.innerHTML = html;
         }
 
         function updateCharts() {
@@ -614,50 +568,57 @@
             
             state.records.forEach(r => {
                 const s = r.STATUS || 'Pending';
-                statuses[s] = (statuses[s] || 0) + 1;
+                // Group status logically based on screenshot (Completed, Pending Approval, Incomplete/Pending)
+                let key = s === 'Completed' ? 'Completed' : (s === 'Pending For Approval' ? 'Pending Approval' : 'Incomplete');
+                statuses[key] = (statuses[key] || 0) + 1;
                 
                 if (s === 'Completed' && r['STAFF NAME']) {
                     staffs[r['STAFF NAME']] = (staffs[r['STAFF NAME']] || 0) + 1;
                 }
             });
 
-            // Pie Chart - Status Distribution
+            // Pie Chart matching screenshot
             const ctxPie = document.getElementById('pieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
             pieChartInstance = new Chart(ctxPie, {
                 type: 'doughnut',
                 data: {
-                    labels: Object.keys(statuses),
+                    labels: ['Completed', 'Pending Approval', 'Incomplete'],
                     datasets: [{
-                        data: Object.values(statuses),
-                        backgroundColor: ['#0F766E', '#F59E0B', '#14B8A6', '#64748B', '#EF4444'],
+                        data: [statuses['Completed']||0, statuses['Pending Approval']||0, statuses['Incomplete']||0],
+                        backgroundColor: ['#10B981', '#F59E0B', '#EF4444'], // Green, Orange, Red
                         borderWidth: 0,
-                        hoverOffset: 4
                     }]
                 },
                 options: { 
                     responsive: true, 
                     maintainAspectRatio: false, 
                     plugins: { 
-                        legend: { position: 'right', labels: { usePointStyle: true, boxWidth: 8, font: { family: 'Inter' } } } 
+                        legend: { display: false } // Custom legend below canvas
                     },
-                    cutout: '70%'
+                    cutout: '75%'
                 }
             });
 
-            // Bar Chart - Staff Performance (Completed)
+            // Bar Chart matching screenshot
             const ctxBar = document.getElementById('barChart').getContext('2d');
             if (barChartInstance) barChartInstance.destroy();
+            
+            // Assign gradient colors to bars based on index to mimic screenshot
+            const colors = ['#6366F1', '#8B5CF6', '#3B82F6', '#10B981', '#64748B'];
+            const staffLabels = Object.keys(staffs).length ? Object.keys(staffs) : ['ADMIN'];
+            const staffData = Object.keys(staffs).length ? Object.values(staffs) : [0];
+            const bgColors = staffLabels.map((_, i) => colors[i % colors.length]);
+
             barChartInstance = new Chart(ctxBar, {
                 type: 'bar',
                 data: {
-                    labels: Object.keys(staffs).length ? Object.keys(staffs) : ['No Data'],
+                    labels: staffLabels.map(l => l.toUpperCase()),
                     datasets: [{
-                        label: 'Completed Tasks',
-                        data: Object.keys(staffs).length ? Object.values(staffs) : [0],
-                        backgroundColor: '#14B8A6',
-                        borderRadius: 4,
-                        barPercentage: 0.5
+                        data: staffData,
+                        backgroundColor: bgColors,
+                        borderRadius: 6,
+                        barPercentage: 0.3
                     }]
                 },
                 options: { 
@@ -665,8 +626,8 @@
                     maintainAspectRatio: false, 
                     plugins: { legend: { display: false } },
                     scales: { 
-                        y: { beginAtZero: true, ticks: { stepSize: 1, font: { family: 'Inter' } }, grid: { borderDash: [2, 4] } },
-                        x: { ticks: { font: { family: 'Inter' } }, grid: { display: false } }
+                        y: { beginAtZero: true, max: 500, ticks: { stepSize: 50, font: { family: 'Inter', size: 10 } }, grid: { color: '#F1F5F9' }, border: { display: false } },
+                        x: { ticks: { font: { family: 'Inter', size: 10, weight: 'bold' }, color: '#64748B' }, grid: { display: false }, border: { display: false } }
                     } 
                 }
             });
@@ -725,14 +686,14 @@
                     adminTools = `
                         <input type="file" id="file-upload-${name}" class="hidden" accept="image/*" onchange="window.handleImageUpload('${name}', event)">
                         <div class="absolute -bottom-2 -right-2 flex gap-1">
-                            <button onclick="window.triggerUpload('${name}')" class="w-7 h-7 bg-white rounded-full shadow-md text-primary hover:bg-slate-50 flex items-center justify-center text-xs border border-slate-100" title="Upload Image"><i class="fas fa-camera"></i></button>
-                            ${savedImg ? `<button onclick="window.removeImage('${name}')" class="w-7 h-7 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 flex items-center justify-center text-xs border border-slate-100" title="Remove"><i class="fas fa-trash"></i></button>` : ''}
+                            <button onclick="window.triggerUpload('${name}')" class="w-7 h-7 bg-white rounded-full shadow-md text-primary hover:bg-slate-50 flex items-center justify-center text-xs border border-slate-100"><i class="fas fa-camera"></i></button>
+                            ${savedImg ? `<button onclick="window.removeImage('${name}')" class="w-7 h-7 bg-white rounded-full shadow-md text-red-500 hover:bg-red-50 flex items-center justify-center text-xs border border-slate-100"><i class="fas fa-trash"></i></button>` : ''}
                         </div>
                     `;
                 }
 
                 html += `
-                <div class="glass-card flex flex-col items-center p-6 text-center border border-borderLight hover:shadow-float transition-all group">
+                <div class="glass-card flex flex-col items-center p-6 text-center hover:shadow-lg transition-all group">
                     <div class="relative mb-4">
                         ${avatarHtml}
                         ${adminTools}
@@ -759,10 +720,9 @@
         // ==========================================
         // INLINE EDIT & WORKFLOW HANDLERS
         // ==========================================
-
         window.handleEdit = function(controlNo) {
             state.editingControlNo = controlNo;
-            renderTable(); // Re-render locally sangat pantas, tiada loading screen.
+            renderTable(); // Re-render seamless
         };
 
         window.handleInlineCancel = function() {
@@ -771,66 +731,53 @@
         };
 
         window.handleInlineSave = async function(originalControlNo) {
-            // Dapatkan value daripada inputs
             const btnContainer = document.getElementById(`actions-${originalControlNo}`);
-            if(btnContainer) btnContainer.innerHTML = `<i class="fas fa-spinner fa-spin text-primary"></i> Saving...`;
+            if(btnContainer) btnContainer.innerHTML = `<i class="fas fa-spinner fa-spin text-primary"></i>`;
 
             const cNoInput = document.getElementById(`inline-cno-${originalControlNo}`).value;
             const staffInput = document.getElementById(`inline-staff-${originalControlNo}`).value;
             const titleInput = document.getElementById(`inline-title-${originalControlNo}`).value;
             const statusInput = document.getElementById(`inline-status-${originalControlNo}`).value;
             
-            // Simpan original data in case fail
             const record = state.records.find(r => r['CONTROL NO'] === originalControlNo);
             const originalCallNo = record ? (record['CALL NO 060/050'] || '') : '';
 
-            // Hantar ke backend tanpa ganggu UI dengan loading overlay (Seamless)
             const res = await apiCall('updateRecord', { 
-                originalControlNo: originalControlNo, 
-                staffName: staffInput, 
-                controlNo: cNoInput, 
-                callNo: originalCallNo, // Kekalkan Call No asal jika tak diedit dalam inline main row
-                status: statusInput 
+                originalControlNo: originalControlNo, staffName: staffInput, controlNo: cNoInput, callNo: originalCallNo, status: statusInput 
             });
             
             if(res.status === 'success') {
                 if(record) {
                     record['CONTROL NO'] = cNoInput;
                     record['STAFF NAME'] = staffInput;
-                    record['TITLE'] = titleInput; // Update memori tempatan
+                    record['TITLE'] = titleInput;
                     record['STATUS'] = statusInput;
                 }
                 state.editingControlNo = null;
                 updateDashboardStats();
-                processTableData(); // Akan refresh view serta merta
+                processTableData(); 
             } else {
                 alert("Error: " + res.message);
                 state.editingControlNo = null;
-                renderTable(); // Revert back view if fail
+                renderTable();
             }
         };
 
         window.handleComplete = async function(controlNo) {
-            // Tandakan row sebagai loading (Optimistic UI)
             const record = state.records.find(r => r['CONTROL NO'] === controlNo);
             if(!record) return;
-
-            // Simpan status asal untuk fallback
             const oldStatus = record['STATUS'];
             
-            // Terus Update UI Memori (Sangat Laju)
             record['STATUS'] = 'Pending For Approval';
             record['STAFF NAME'] = state.user.username;
             updateDashboardStats();
             processTableData(); 
 
-            // Hantar API di background
             const res = await apiCall('completeRecord', { controlNo: controlNo, user: state.user.username });
             if(res.status === 'success') {
                 record['DATE'] = res.date;
-                processTableData(); // Refesh tarikh baru masuk
+                processTableData(); 
             } else {
-                // Fallback jika API gagal
                 record['STATUS'] = oldStatus;
                 updateDashboardStats();
                 processTableData(); 
@@ -843,7 +790,6 @@
             if(!record) return;
             const oldStatus = record['STATUS'];
 
-            // Optimistic UI Update
             record['STATUS'] = 'Completed';
             record['APPROVED BY'] = state.user.username;
             updateDashboardStats();
@@ -867,7 +813,6 @@
             if(!record) return;
             const oldStatus = record['STATUS'];
 
-            // Optimistic UI Update
             record['STATUS'] = 'Pending Edit';
             record['APPROVED BY'] = '';
             record['APPROVED DATE'] = '';
@@ -884,8 +829,7 @@
         };
 
         // ==========================================
-        // TABLE LOGIC (SEARCH, PAGINATION)
-        // No Sorting functionality as requested
+        // TABLE LOGIC (NO SORTING)
         // ==========================================
         window.handleSearch = function() {
             state.searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -910,8 +854,6 @@
                 data = data.filter(row => Object.values(row).some(val => String(val).toLowerCase().includes(state.searchQuery)));
             }
             
-            // TIADA LAGI LOGIK SORTING DI SINI (Kekal original spreadsheet order)
-
             state.filteredData = data;
             renderTable();
         }
@@ -924,25 +866,22 @@
                 thead.innerHTML = '';
                 tbody.innerHTML = `<tr><td class="p-10 text-center text-textMuted font-medium"><i class="fas fa-folder-open text-3xl mb-3 opacity-30 block"></i> No records found.</td></tr>`;
                 document.getElementById('tableRecordCount').innerText = `0 records`;
-                document.getElementById('paginationInfo').innerText = `Showing 0 to 0 of 0`;
+                document.getElementById('paginationInfo').innerText = `Showing 0 to 0 of 0 records`;
                 return;
             }
 
-            // Columns definition (No sorting events needed)
-            const mainCols = ["CONTROL NO", "TITLE", "STAFF NAME", "STATUS", "ACTION"];
+            // Kolum spesifik untuk memadankan screenshot
+            const mainCols = ["NO", "CONTROL NUMBER", "CALL NO (082)", "CALL NO (050/060)", "ACCESSION", "TITLE", "STAFF", "DATE", "STATUS", "AUDIT TRAIL", "ACTION"];
             
-            // Render Header
-            let headHTML = '<tr><th class="w-10"></th>'; 
+            // Render Header (Gelap seperti screenshot)
+            let headHTML = '<tr>'; 
             mainCols.forEach(h => {
                 let widthClass = "";
-                // Set width secara bebas untuk membenarkan responsif auto wrap
-                if(h === "ACTION") widthClass = "w-[180px] text-right";
-                else if(h === "STATUS") widthClass = "w-[150px]";
-                else if(h === "CONTROL NO") widthClass = "w-[140px]";
-                else if(h === "STAFF NAME") widthClass = "w-[180px]";
-                else widthClass = "w-auto"; // TITLE biarkan auto sizing & wrap
-
-                headHTML += `<th class="p-3 text-xs font-bold text-textMuted uppercase tracking-wider ${widthClass}">${h === 'ACTION' ? 'Action' : h}</th>`;
+                if(h === "NO") widthClass = "w-12 text-center";
+                else if(h === "TITLE") widthClass = "w-1/4";
+                else if(h === "ACTION") widthClass = "w-28 text-center";
+                
+                headHTML += `<th class="px-4 py-3 text-[10px] font-bold text-white uppercase tracking-wider ${widthClass}">${h}</th>`;
             });
             headHTML += '</tr>';
             thead.innerHTML = headHTML;
@@ -954,106 +893,106 @@
 
             let bodyHTML = '';
             
-            // Loop for each row
-            paginatedData.forEach(row => {
+            paginatedData.forEach((row, idx) => {
                 const cNo = row['CONTROL NO'];
                 const isEditing = state.editingControlNo === cNo;
+                const rowNo = startIndex + idx + 1;
+
+                // Data mapping dummy to match screenshot missing data
+                const callNo082 = row['CALL NO 082'] || '-'; 
+                const accession = row['ACCESSION'] || 'BK00000000'; // Default text if empty
+                const auditTrail = '-';
 
                 if (isEditing) {
-                    // ----------------------------------------------------
-                    // INLINE EDIT MODE ROW
-                    // ----------------------------------------------------
-                    // Sediakan option Staff
+                    // ---------------- INLINE EDIT ROW ----------------
                     const staffOpts = state.staff.map(s => `<option value="${s.NAME}" ${s.NAME===row['STAFF NAME']?'selected':''}>${s.NAME}</option>`).join('');
-                    // Sediakan option Status
                     const statuses = ['Pending', 'Pending Edit', 'Pending For Approval', 'Completed'];
                     const statusOpts = statuses.map(s => `<option value="${s}" ${s===row['STATUS']?'selected':''}>${s}</option>`).join('');
 
-                    bodyHTML += `<tr class="bg-indigo-50/40 text-sm text-textMain border-l-4 border-primary transition-all">`;
-                    bodyHTML += `<td class="p-3 text-center"><i class="fas fa-edit text-primary text-xs"></i></td>`;
+                    bodyHTML += `<tr class="bg-indigo-50/40 text-[11px] font-medium text-textMain border-b border-slate-100 transition-all">`;
+                    bodyHTML += `<td class="px-4 py-3 text-center text-textMuted">${rowNo}</td>`;
                     
-                    // Input Control No
-                    bodyHTML += `<td class="p-3 align-top"><input type="text" id="inline-cno-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded shadow-sm text-sm focus:ring-2 focus:ring-primary/20 outline-none font-mono" value="${cNo}"></td>`;
-                    // Input Title (Textarea auto wrap)
-                    bodyHTML += `<td class="p-3 align-top"><textarea id="inline-title-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded shadow-sm text-sm focus:ring-2 focus:ring-primary/20 outline-none resize-none leading-snug" rows="2">${row['TITLE']||''}</textarea></td>`;
-                    // Input Staff (Dropdown)
-                    bodyHTML += `<td class="p-3 align-top"><select id="inline-staff-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded shadow-sm text-sm focus:ring-2 focus:ring-primary/20 outline-none bg-white"><option value="">Select...</option>${staffOpts}</select></td>`;
-                    // Input Status (Dropdown)
-                    bodyHTML += `<td class="p-3 align-top"><select id="inline-status-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded shadow-sm text-sm focus:ring-2 focus:ring-primary/20 outline-none bg-white">${statusOpts}</select></td>`;
+                    bodyHTML += `<td class="px-4 py-3"><input type="text" id="inline-cno-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded text-xs focus:ring-1 focus:ring-primary outline-none" value="${cNo}"></td>`;
+                    bodyHTML += `<td class="px-4 py-3 text-slate-400">${callNo082}</td>`;
+                    bodyHTML += `<td class="px-4 py-3 text-slate-400">${row['CALL NO 060/050']||'-'}</td>`;
+                    bodyHTML += `<td class="px-4 py-3 text-slate-400">${accession}</td>`;
                     
-                    // Buttons Save/Cancel
-                    bodyHTML += `<td class="p-3 align-top text-right" id="actions-${cNo}">
-                        <div class="flex items-center justify-end gap-1.5">
-                            <button onclick="window.handleInlineSave('${cNo}')" class="bg-primary hover:bg-teal-800 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition-all">Save</button>
-                            <button onclick="window.handleInlineCancel()" class="bg-white border border-slate-300 text-textMuted hover:bg-slate-50 px-3 py-1.5 rounded-md text-xs font-semibold transition-all">Cancel</button>
+                    bodyHTML += `<td class="px-4 py-3"><textarea id="inline-title-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded text-xs focus:ring-1 focus:ring-primary outline-none resize-none leading-snug" rows="2">${row['TITLE']||''}</textarea></td>`;
+                    
+                    bodyHTML += `<td class="px-4 py-3"><select id="inline-staff-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded text-xs focus:ring-1 focus:ring-primary outline-none bg-white"><option value="">Select...</option>${staffOpts}</select></td>`;
+                    bodyHTML += `<td class="px-4 py-3 text-slate-400">${row['DATE']||'-'}</td>`;
+                    
+                    bodyHTML += `<td class="px-4 py-3"><select id="inline-status-${cNo}" class="w-full px-2 py-1.5 border border-primary/40 rounded text-xs focus:ring-1 focus:ring-primary outline-none bg-white">${statusOpts}</select></td>`;
+                    bodyHTML += `<td class="px-4 py-3 text-slate-400">${auditTrail}</td>`;
+                    
+                    bodyHTML += `<td class="px-4 py-3 text-center" id="actions-${cNo}">
+                        <div class="flex flex-col gap-1 items-center justify-center">
+                            <button onclick="window.handleInlineSave('${cNo}')" class="text-xs text-primary font-bold hover:underline">Save</button>
+                            <button onclick="window.handleInlineCancel()" class="text-[10px] text-textMuted hover:underline">Cancel</button>
                         </div>
                     </td>`;
                     bodyHTML += `</tr>`;
 
                 } else {
-                    // ----------------------------------------------------
-                    // NORMAL READ-ONLY ROW
-                    // ----------------------------------------------------
-                    bodyHTML += `<tr onclick="window.toggleRow('${cNo}')" class="hover:bg-slate-50 transition-colors text-sm text-textMain cursor-pointer group">`;
-                    bodyHTML += `<td class="p-3 text-center text-textMuted group-hover:text-primary"><i id="icon-${cNo}" class="fas fa-chevron-right text-xs transition-transform"></i></td>`;
+                    // ---------------- READ-ONLY ROW ----------------
+                    bodyHTML += `<tr class="hover:bg-slate-50 transition-colors text-[11px] font-bold text-sidebar border-b border-slate-100">`;
+                    bodyHTML += `<td class="px-4 py-3 text-center text-textMuted">${rowNo}</td>`;
+                    bodyHTML += `<td class="px-4 py-3">${cNo || '-'}</td>`;
+                    bodyHTML += `<td class="px-4 py-3">${callNo082}</td>`;
+                    bodyHTML += `<td class="px-4 py-3">${row['CALL NO 060/050']||'-'}</td>`;
+                    bodyHTML += `<td class="px-4 py-3 text-primaryLight uppercase">${accession}</td>`;
+                    bodyHTML += `<td class="px-4 py-3 text-sidebar whitespace-normal break-words">${row['TITLE']||'-'}</td>`;
+                    bodyHTML += `<td class="px-4 py-3 uppercase">${row['STAFF NAME']||'-'}</td>`;
+                    bodyHTML += `<td class="px-4 py-3 font-normal text-textMuted">${row['DATE']||'-'}</td>`;
                     
-                    mainCols.forEach(h => {
-                        if (h === 'ACTION') {
-                            let btn = '<div class="flex items-center justify-end gap-2">';
-                            const statusVal = row['STATUS'];
-                            
-                            if (state.currentDataMode === 'rekod') {
-                                if (statusVal !== 'Completed') {
-                                    if (state.user.role === 'Staff' || state.user.role === 'Admin') {
-                                        // Butang Edit Inline
-                                        btn += `<button onclick="event.stopPropagation(); window.handleEdit('${cNo}')" class="text-primary hover:bg-teal-50 px-3 py-1.5 rounded-md border border-primary/30 text-xs font-semibold transition-all">Edit</button>`;
-                                        // Butang Complete
-                                        btn += `<button onclick="event.stopPropagation(); window.handleComplete('${cNo}')" class="bg-primary hover:bg-teal-800 text-white px-3 py-1.5 rounded-md text-xs font-semibold shadow-sm transition-all">Complete</button>`;
-                                    }
-                                } else {
-                                    if (state.user.role === 'Admin') {
-                                        btn += `<button onclick="event.stopPropagation(); window.handleReopen('${cNo}')" class="text-amber-600 hover:bg-amber-50 px-3 py-1.5 rounded-md border border-amber-300 text-xs font-semibold transition-all">Reopen</button>`;
-                                    }
-                                }
-                            } else if (state.currentDataMode === 'approval') {
-                                if (statusVal === 'Pending For Approval' && (state.user.role === 'Pelulus' || state.user.role === 'Admin')) {
-                                    btn += `<button onclick="event.stopPropagation(); window.handleApprove('${cNo}')" class="bg-primary hover:bg-teal-800 text-white px-4 py-1.5 rounded-md text-xs font-semibold shadow-sm transition-all"><i class="fas fa-check mr-1"></i> Approve</button>`;
-                                }
+                    // STATUS PILL (dot style)
+                    const statusVal = row['STATUS'] || 'Pending';
+                    let bgClass = "bg-slate-50 text-slate-600";
+                    let dotClass = "bg-slate-400";
+                    let statusLabel = statusVal.toUpperCase();
+                    
+                    if(statusVal === 'Completed') {
+                        bgClass = "bg-emerald-50 text-emerald-600";
+                        dotClass = "bg-emerald-500";
+                    } else if(statusVal === 'Pending For Approval') {
+                        bgClass = "bg-orange-50 text-orange-500";
+                        dotClass = "bg-orange-500";
+                        statusLabel = "PENDING"; // Simplify label like in screenshot
+                    } else if(statusVal === 'Pending Edit') {
+                        bgClass = "bg-red-50 text-red-600";
+                        dotClass = "bg-red-500";
+                    } else if(statusVal === 'Pending') {
+                        bgClass = "bg-orange-50 text-orange-500";
+                        dotClass = "bg-orange-500";
+                    }
+                    
+                    bodyHTML += `<td class="px-4 py-3">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-extrabold tracking-wider ${bgClass}">
+                            <span class="w-1.5 h-1.5 rounded-full ${dotClass}"></span>${statusLabel}
+                        </span>
+                    </td>`;
+                    
+                    // Audit trail mock
+                    bodyHTML += `<td class="px-4 py-3 text-slate-300 font-normal italic flex items-center gap-1"><span class="w-1 h-1 rounded-full bg-slate-200"></span> Pending</td>`;
+                    
+                    // ACTION BUTTONS (Simplified)
+                    let btn = '<span class="text-slate-300">—</span>';
+                    if (state.currentDataMode === 'rekod') {
+                        if (statusVal !== 'Completed') {
+                            if (state.user.role === 'Staff' || state.user.role === 'Admin') {
+                                btn = `<button onclick="window.handleEdit('${cNo}')" class="text-primary hover:text-indigo-800 mr-2"><i class="fas fa-edit"></i></button>
+                                       <button onclick="window.handleComplete('${cNo}')" class="text-emerald-500 hover:text-emerald-700"><i class="fas fa-check"></i></button>`;
                             }
-                            btn += '</div>';
-                            bodyHTML += `<td class="p-3 align-top">${btn}</td>`;
-                        } else if (h === 'STATUS') {
-                            const statusVal = row[h] || 'Pending';
-                            let style = "bg-slate-100 text-slate-600 border-slate-200";
-                            if(statusVal === 'Completed') style = "bg-teal-50 text-teal-700 border-teal-200";
-                            else if(statusVal === 'Pending For Approval') style = "bg-amber-50 text-amber-700 border-amber-200";
-                            else if(statusVal === 'Pending Edit') style = "bg-red-50 text-red-700 border-red-200";
-                            
-                            bodyHTML += `<td class="p-3 align-top"><span class="px-2.5 py-1 rounded-md text-xs font-semibold border ${style}">${statusVal}</span></td>`;
-                        } else if (h === 'TITLE') {
-                            // TITLE Menggunakan auto wrap / whitespace-normal supaya panjang penuh dipaparkan
-                            bodyHTML += `<td class="p-3 align-top text-textMuted font-medium whitespace-normal break-words leading-snug">${row[h] || '-'}</td>`;
-                        } else {
-                            bodyHTML += `<td class="p-3 align-top font-medium">${row[h] || '-'}</td>`;
+                        } else if (state.user.role === 'Admin') {
+                            btn = `<button onclick="window.handleReopen('${cNo}')" class="text-amber-500 hover:text-amber-700"><i class="fas fa-undo"></i></button>`;
                         }
-                    });
+                    } else if (state.currentDataMode === 'approval') {
+                        if (statusVal === 'Pending For Approval' && (state.user.role === 'Pelulus' || state.user.role === 'Admin')) {
+                            btn = `<button onclick="window.handleApprove('${cNo}')" class="text-emerald-500 hover:text-emerald-700 bg-emerald-50 px-2 py-1 rounded"><i class="fas fa-check"></i></button>`;
+                        }
+                    }
+                    bodyHTML += `<td class="px-4 py-3 text-center">${btn}</td>`;
                     bodyHTML += '</tr>';
-
-                    // Expanded Details Row (Read-only view)
-                    bodyHTML += `
-                    <tr id="details-${cNo}" class="hidden bg-slate-50/50 border-b border-borderLight shadow-inner">
-                        <td></td>
-                        <td colspan="${mainCols.length}">
-                            <div class="p-4 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 text-sm fade-in">
-                                <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Date</p><p class="font-medium text-textMain">${row['DATE'] || '-'}</p></div>
-                                <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Call No 060/050</p><p class="font-mono font-medium text-textMain bg-white border border-slate-200 px-2 py-1 rounded inline-block shadow-sm">${row['CALL NO 060/050'] || '-'}</p></div>
-                                <div class="md:col-span-2"><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Full Title Verification</p><p class="font-medium text-textMain whitespace-normal">${row['TITLE'] || '-'}</p></div>
-                                <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Approved By</p><p class="font-medium text-textMain">${row['APPROVED BY'] || '-'}</p></div>
-                                <div><p class="text-xs text-textMuted font-semibold mb-1 uppercase">Approved Date</p><p class="font-medium text-textMain">${row['APPROVED DATE'] || '-'}</p></div>
-                            </div>
-                        </td>
-                    </tr>
-                    `;
                 }
             });
             tbody.innerHTML = bodyHTML;
@@ -1061,7 +1000,7 @@
             // Update Pagination Info
             document.getElementById('tableRecordCount').innerText = `${state.filteredData.length} records`;
             const endDisplay = Math.min(endIndex, state.filteredData.length);
-            document.getElementById('paginationInfo').innerText = `Showing ${startIndex + 1} to ${endDisplay} of ${state.filteredData.length}`;
+            document.getElementById('paginationInfo').innerText = `Showing ${state.filteredData.length === 0 ? 0 : startIndex + 1} to ${endDisplay} of ${state.filteredData.length} records`;
         }
     </script>
 </body>
