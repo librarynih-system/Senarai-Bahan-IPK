@@ -318,9 +318,10 @@
 
                     <!-- KPI CARDS -->
                     <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 mb-5 shrink-0">
+                        <!-- Total Records -->
                         <div class="glass-panel p-5 hover-lift relative overflow-hidden flex flex-col h-[140px] group">
                             <div class="flex items-center gap-3 relative z-10">
-                                <div class="w-10 h-10 bg-[#E6F4F1] text-secondary rounded-[12px] flex items-center justify-center">
+                                <div class="w-10 h-10 bg-info text-white rounded-[12px] flex items-center justify-center shadow-soft">
                                     <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 24 24"><path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4"></path></svg>
                                 </div>
                                 <div>
@@ -328,15 +329,19 @@
                                     <h2 class="text-4xl font-extrabold text-textHeading dark:text-white font-montserrat leading-none" id="stat-total">0</h2>
                                 </div>
                             </div>
-                            <div class="mt-auto relative z-10 text-xs font-bold text-secondary mb-2 flex items-center gap-1">
+                            <div class="mt-auto relative z-10 text-xs font-bold text-info mb-2 flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 12.5% vs last month
                             </div>
+                            <svg class="sparkline absolute bottom-0 left-0 w-full h-12 text-info opacity-40" viewBox="0 0 100 30" preserveAspectRatio="none">
+                                <path d="M0,25 C20,20 40,30 60,10 C80,20 100,5 100,5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                            </svg>
                         </div>
                         
+                        <!-- Completed -->
                         <div class="glass-panel p-5 hover-lift relative overflow-hidden flex flex-col h-[140px] group">
                             <div class="flex items-center gap-3 relative z-10">
-                                <div class="w-10 h-10 bg-emerald-100 text-emerald-600 rounded-[12px] flex items-center justify-center">
+                                <div class="w-10 h-10 bg-success text-white rounded-[12px] flex items-center justify-center shadow-soft">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
                                 </div>
                                 <div>
@@ -344,15 +349,19 @@
                                     <h2 class="text-4xl font-extrabold text-textHeading dark:text-white font-montserrat leading-none" id="stat-completed">0</h2>
                                 </div>
                             </div>
-                            <div class="mt-auto relative z-10 text-xs font-bold text-emerald-600 mb-2 flex items-center gap-1">
+                            <div class="mt-auto relative z-10 text-xs font-bold text-success mb-2 flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 15.3% vs last month
                             </div>
+                            <svg class="sparkline absolute bottom-0 left-0 w-full h-12 text-success opacity-40" viewBox="0 0 100 30" preserveAspectRatio="none">
+                                <path d="M0,30 C20,10 40,25 60,5 C80,15 100,0 100,0" fill="none" stroke="currentColor" stroke-width="1.5" />
+                            </svg>
                         </div>
                         
+                        <!-- Pending Approval -->
                         <div class="glass-panel p-5 hover-lift relative overflow-hidden flex flex-col h-[140px] group">
                             <div class="flex items-center gap-3 relative z-10">
-                                <div class="w-10 h-10 bg-amber-100 text-amber-600 rounded-[12px] flex items-center justify-center">
+                                <div class="w-10 h-10 bg-warning text-white rounded-[12px] flex items-center justify-center shadow-soft">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                                 </div>
                                 <div>
@@ -360,15 +369,19 @@
                                     <h2 class="text-4xl font-extrabold text-textHeading dark:text-white font-montserrat leading-none" id="stat-pending">0</h2>
                                 </div>
                             </div>
-                            <div class="mt-auto relative z-10 text-xs font-bold text-amber-600 mb-2 flex items-center gap-1">
-                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v-8m0 8l-8-8-4 4-6-6"></path></svg>
+                            <div class="mt-auto relative z-10 text-xs font-bold text-warning mb-2 flex items-center gap-1">
+                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 8.1% vs last month
                             </div>
+                            <svg class="sparkline absolute bottom-0 left-0 w-full h-12 text-warning opacity-40" viewBox="0 0 100 30" preserveAspectRatio="none">
+                                <path d="M0,5 C20,20 40,5 60,25 C80,10 100,20 100,20" fill="none" stroke="currentColor" stroke-width="1.5" />
+                            </svg>
                         </div>
                         
+                        <!-- Staff Active -->
                         <div class="glass-panel p-5 hover-lift relative overflow-hidden flex flex-col h-[140px] group">
                             <div class="flex items-center gap-3 relative z-10">
-                                <div class="w-10 h-10 bg-blue-100 text-info rounded-[12px] flex items-center justify-center">
+                                <div class="w-10 h-10 bg-[#8B5CF6] text-white rounded-[12px] flex items-center justify-center shadow-soft">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                                 </div>
                                 <div>
@@ -376,10 +389,13 @@
                                     <h2 class="text-4xl font-extrabold text-textHeading dark:text-white font-montserrat leading-none" id="stat-staff">0</h2>
                                 </div>
                             </div>
-                            <div class="mt-auto relative z-10 text-xs font-bold text-secondary mb-2 flex items-center gap-1">
+                            <div class="mt-auto relative z-10 text-xs font-bold text-[#8B5CF6] mb-2 flex items-center gap-1">
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 3.2% vs last month
                             </div>
+                            <svg class="sparkline absolute bottom-0 left-0 w-full h-12 text-[#8B5CF6] opacity-40" viewBox="0 0 100 30" preserveAspectRatio="none">
+                                <path d="M0,15 C20,5 40,25 60,10 C80,20 100,5 100,5" fill="none" stroke="currentColor" stroke-width="1.5" />
+                            </svg>
                         </div>
                     </div>
 
@@ -2040,7 +2056,7 @@
                     plugins: { 
                         legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { family: "'Inter', sans-serif", size: 10 }, color: textColor } },
                         tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 13 }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 8 }
-                    }, cutout: '80%' // Ditukar dari 70% kepada 80%
+                    }, cutout: '65%' // Ditukar dari 80% kepada 65% untuk menyamai gambar pertama
                 }
             });
 
