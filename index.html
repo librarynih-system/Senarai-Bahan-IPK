@@ -132,6 +132,9 @@
         }
         .sidebar-desktop-closed .nav-link:hover .sidebar-tooltip { opacity: 1; }
 
+        .sparkline { position: absolute; bottom: 0; left: 0; width: 100%; height: 32px; pointer-events: none; transition: opacity 0.3s; z-index: 0; }
+        .hover-lift:hover .sparkline { opacity: 0.8; }
+
         /* Global Form Radius */
         input, select, textarea, button { border-radius: 12px !important; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: #0D9488 !important; box-shadow: 0 0 0 2px rgba(13, 148, 136, 0.15) !important; }
@@ -333,7 +336,7 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 12.5% vs last month
                             </div>
-                            <svg class="sparkline absolute bottom-0 left-0 w-full h-12 text-info opacity-40" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <svg class="sparkline text-info opacity-20" viewBox="0 0 100 30" preserveAspectRatio="none">
                                 <path d="M0,25 C20,20 40,30 60,10 C80,20 100,5 100,5" fill="none" stroke="currentColor" stroke-width="1.5" />
                             </svg>
                         </div>
@@ -353,7 +356,7 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 15.3% vs last month
                             </div>
-                            <svg class="sparkline absolute bottom-0 left-0 w-full h-12 text-success opacity-40" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <svg class="sparkline text-success opacity-20" viewBox="0 0 100 30" preserveAspectRatio="none">
                                 <path d="M0,30 C20,10 40,25 60,5 C80,15 100,0 100,0" fill="none" stroke="currentColor" stroke-width="1.5" />
                             </svg>
                         </div>
@@ -373,7 +376,7 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 8.1% vs last month
                             </div>
-                            <svg class="sparkline absolute bottom-0 left-0 w-full h-12 text-warning opacity-40" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <svg class="sparkline text-warning opacity-20" viewBox="0 0 100 30" preserveAspectRatio="none">
                                 <path d="M0,5 C20,20 40,5 60,25 C80,10 100,20 100,20" fill="none" stroke="currentColor" stroke-width="1.5" />
                             </svg>
                         </div>
@@ -393,7 +396,7 @@
                                 <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                                 3.2% vs last month
                             </div>
-                            <svg class="sparkline absolute bottom-0 left-0 w-full h-12 text-[#8B5CF6] opacity-40" viewBox="0 0 100 30" preserveAspectRatio="none">
+                            <svg class="sparkline text-[#8B5CF6] opacity-20" viewBox="0 0 100 30" preserveAspectRatio="none">
                                 <path d="M0,15 C20,5 40,25 60,10 C80,20 100,5 100,5" fill="none" stroke="currentColor" stroke-width="1.5" />
                             </svg>
                         </div>
@@ -408,11 +411,6 @@
                             </h3>
                             <div class="relative w-full flex-1 min-h-[150px] pb-2 flex items-center justify-center">
                                 <canvas id="statusChart"></canvas>
-                                <!-- Center Text for Doughnut -->
-                                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4">
-                                    <span class="text-2xl font-bold text-textHeading dark:text-white font-montserrat" id="chart-center-total">0</span>
-                                    <span class="text-[10px] text-textCaption font-semibold">Total</span>
-                                </div>
                             </div>
                         </div>
                         
@@ -2022,7 +2020,6 @@
             });
 
             if (document.getElementById('stat-total')) document.getElementById('stat-total').textContent = total.toLocaleString();
-            if (document.getElementById('chart-center-total')) document.getElementById('chart-center-total').textContent = total.toLocaleString(); // TAMBAHAN: Kemaskini carta tengah
             if (document.getElementById('stat-completed')) document.getElementById('stat-completed').textContent = completed.toLocaleString();
             if (document.getElementById('stat-pending')) document.getElementById('stat-pending').textContent = pending;
             if (document.getElementById('stat-staff')) document.getElementById('stat-staff').textContent = Object.keys(staffCounts).length;
@@ -2056,7 +2053,7 @@
                     plugins: { 
                         legend: { position: 'bottom', labels: { usePointStyle: true, boxWidth: 8, font: { family: "'Inter', sans-serif", size: 10 }, color: textColor } },
                         tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', titleFont: { size: 13 }, bodyFont: { size: 12 }, padding: 10, cornerRadius: 8 }
-                    }, cutout: '65%' // Ditukar dari 80% kepada 65% untuk menyamai gambar pertama
+                    }, cutout: '75%' 
                 }
             });
 
@@ -2077,7 +2074,17 @@
                         responsive: true, maintainAspectRatio: false, animation: { y: { duration: 1000, easing: 'easeOutQuart' } },
                         plugins: { legend: { display: false }, tooltip: { backgroundColor: 'rgba(15, 23, 42, 0.9)', padding: 10, cornerRadius: 8 } },
                         scales: { 
-                            y: { beginAtZero: true, border: {display: false}, ticks: { stepSize: 50, font: { size: 10 }, color: textColor }, grid: { color: gridColor, drawBorder: false } }, 
+                            y: { 
+                                beginAtZero: true, 
+                                suggestedMax: 200, // Memaksa paksi mencapai sekurang-kurangnya 200
+                                border: {display: false}, 
+                                ticks: { 
+                                    stepSize: 50, // Garisan sukatan 50, 100, 150, 200
+                                    font: { size: 10 }, 
+                                    color: textColor 
+                                }, 
+                                grid: { color: gridColor, drawBorder: false } 
+                            }, 
                             x: { grid: { display: false }, border: {display: false}, ticks: { font: { size: 10, weight: '600' }, color: textColor } } 
                         } 
                     }
