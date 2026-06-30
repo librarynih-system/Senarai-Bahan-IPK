@@ -414,7 +414,7 @@
                             </div>
                         </div>
                         
-                        <div class="glass-panel p-5 flex flex-col lg:col-span-2 h-[280px] hover-lift group">
+                        <div class="glass-panel p-5 flex flex-col lg:col-span-3 h-[280px] hover-lift group">
                             <div class="flex justify-between items-center mb-4">
                                 <h3 class="font-bold text-textHeading dark:text-white text-sm">Staff Performance Trends</h3>
                                 <div class="text-[11px] bg-white border border-cardBorder dark:bg-gray-800 text-textBody dark:text-gray-300 px-3 py-1.5 font-bold cursor-pointer hover:bg-slate-50 transition-colors">This Year ▾</div>
@@ -492,18 +492,18 @@
                         <!-- Collection Table Container -->
                         <div class="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar bg-white dark:bg-gray-900 px-0 pb-0 pt-0 border-t border-cardBorder dark:border-gray-700 rounded-b-[18px]">
                             <table class="w-full text-left whitespace-nowrap">
-                                <thead>
+                                <thead class="bg-secondary text-white">
                                     <tr>
-                                        <th class="px-3 py-3 text-center w-12">NO</th>
-                                        <th class="px-3 py-3 text-center text-[10px]">CONTROL NUMBER</th>
-                                        <th class="px-3 py-3 text-center w-[130px] max-w-[130px] whitespace-normal leading-tight text-[10px]">CALL NO<br>(050/060)</th>
-                                        <th class="px-3 py-3 text-left text-[10px]">ACCESSION</th>
-                                        <th class="px-3 py-3 text-left min-w-[250px] text-[10px]">TITLE</th>
-                                        <th class="px-3 py-3 text-center text-[10px]">STAFF</th>
+                                        <th class="px-3 py-3 text-center w-12 rounded-tl-lg">NO</th>
+                                        <th class="px-3 py-3 text-center text-[10px]">STAFF NAME</th>
                                         <th class="px-3 py-3 text-center text-[10px]">DATE</th>
+                                        <th class="px-3 py-3 text-center text-[10px]">CONTROL NUMBER</th>
+                                        <th class="px-3 py-3 text-left text-[10px]">ACCESSION</th>
+                                        <th class="px-3 py-3 text-center w-[130px] max-w-[130px] whitespace-normal leading-tight text-[10px]">CALL NO<br>(050/060)</th>
+                                        <th class="px-3 py-3 text-left min-w-[250px] text-[10px]">TITLE</th>
                                         <th class="px-3 py-3 text-center text-[10px]">STATUS</th>
-                                        <th class="px-3 py-3 text-left min-w-[150px] text-[10px]">AUDIT TRAIL</th>
-                                        <th class="px-3 py-3 text-center w-20">ACTION</th>
+                                        <th class="px-3 py-3 text-left min-w-[150px] text-[10px]">APPROVED BY</th>
+                                        <th class="px-3 py-3 text-center w-20 rounded-tr-lg">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-body-collection" class="text-xs text-textBody dark:text-gray-200">
@@ -584,18 +584,18 @@
                         <!-- Approvals Table Container -->
                         <div class="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar bg-white dark:bg-gray-900 px-0 pb-0 pt-0 border-t border-cardBorder dark:border-gray-700 rounded-b-[18px]">
                             <table class="w-full text-left whitespace-nowrap">
-                                <thead>
+                                <thead class="bg-secondary text-white">
                                     <tr>
-                                        <th class="px-3 py-3 text-center w-12">NO</th>
+                                        <th class="px-3 py-3 text-center w-12 rounded-tl-lg">NO</th>
+                                        <th class="px-3 py-3 text-center text-[10px]">STAFF NAME</th>
+                                        <th class="px-3 py-3 text-center text-[10px]">DATE</th>
                                         <th class="px-3 py-3 text-center text-[10px]">CONTROL NUMBER</th>
-                                        <th class="px-3 py-3 text-center w-[130px] max-w-[130px] whitespace-normal leading-tight text-[10px]">CALL NO<br>(050/060)</th>
                                         <th class="px-3 py-3 text-left text-[10px]">ACCESSION</th>
+                                        <th class="px-3 py-3 text-center w-[130px] max-w-[130px] whitespace-normal leading-tight text-[10px]">CALL NO<br>(050/060)</th>
                                         <th class="px-3 py-3 text-left min-w-[250px] text-[10px]">TITLE</th>
-                                        <th class="px-3 py-3 text-center text-[10px]">STAFF</th>
-                                        <th class="px-3 py-3 text-center text-[10px]">DATE SUBMITTED</th>
                                         <th class="px-3 py-3 text-center text-[10px]">STATUS</th>
-                                        <th class="px-3 py-3 text-left min-w-[150px] text-[10px]">AUDIT TRAIL</th>
-                                        <th class="px-3 py-3 text-center w-24">ACTION</th>
+                                        <th class="px-3 py-3 text-left min-w-[150px] text-[10px]">APPROVED BY</th>
+                                        <th class="px-3 py-3 text-center w-24 rounded-tr-lg">ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody id="table-body-approvals" class="text-xs text-textBody dark:text-gray-200">
@@ -1780,10 +1780,6 @@
                 return `
                     <tr class="editing-row">
                         <td class="px-3 py-3 text-center font-bold text-textCaption text-[11px]">${row.no}</td>
-                        <td class="px-3 py-3"><input type="text" id="edit-ctrl-${tabId}-${row.id}" value="${row.controlNo}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm outline-none"></td>
-                        <td class="px-3 py-3"><input type="text" id="edit-c050-${tabId}-${row.id}" value="${row.callNo050}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm outline-none"></td>
-                        <td class="px-3 py-3 font-extrabold text-primary text-[11px]">${row.accession}</td>
-                        <td class="px-3 py-3 whitespace-normal break-words font-semibold leading-snug text-left text-xs">${row.title}</td>
                         <td class="px-3 py-3">
                             <select id="edit-staff-${tabId}-${row.id}" class="w-full text-[11px] px-1 py-1.5 border border-cardBorder rounded focus:border-secondary font-bold text-secondary shadow-sm transition-all bg-white outline-none">
                                 ${!dynamicStaffOptions.includes((row.staff || '').toUpperCase().trim()) ? `<option value="${row.staff}" style="display:none;" selected>${displayStaff}</option>` : ''}
@@ -1791,8 +1787,14 @@
                             </select>
                         </td>
                         <td class="px-3 py-3 text-center font-medium text-[11px] text-textSecondary">${formatDisplayDate(row.date)}</td>
+                        <td class="px-3 py-3"><input type="text" id="edit-ctrl-${tabId}-${row.id}" value="${row.controlNo}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm outline-none"></td>
+                        <td class="px-3 py-3 font-extrabold text-primary text-[11px]">${row.accession}</td>
+                        <td class="px-3 py-3"><input type="text" id="edit-c050-${tabId}-${row.id}" value="${row.callNo050}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm outline-none"></td>
+                        <td class="px-3 py-3 whitespace-normal break-words font-semibold leading-snug text-left text-xs">${row.title}</td>
                         <td class="px-3 py-3">${statusSelectHTML}</td>
-                        <td class="px-3 py-3 rounded text-[11px] text-textCaption text-left italic font-medium">Audit Trail locked.</td>
+                        <td class="px-3 py-3 text-left min-w-[150px]">
+                            <span class="text-textCaption italic text-[11px] font-medium">Audit Trail locked.</span>
+                        </td>
                         <td class="px-3 py-3 text-center align-middle">
                             <div class="flex gap-1.5 justify-center">
                                 <button type="button" onclick="saveRow(${row.id}, '${tabId}')" class="bg-emerald-500 hover:bg-emerald-600 text-white p-1.5 rounded-[12px] hover:-translate-y-0.5 transition-all shadow-sm" title="Save Record"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg></button>
@@ -1838,20 +1840,20 @@
                 }
             }
             
-            let displayCallNo050 = `<span class="block text-center font-medium whitespace-normal break-words w-[130px] max-w-[130px] leading-relaxed text-[11px] text-textBody">${row.callNo050}</span>`;
+            let displayCallNo050 = `<span class="block text-center font-medium whitespace-normal break-words w-[130px] max-w-[130px] leading-relaxed text-[11px] text-textBody">${row.callNo050 || '-'}</span>`;
             if (currentUserRole === 'rosli' && tabId === 'approvals' && !isEditing) {
-                displayCallNo050 = `<input type="text" id="rosli-c050-${tabId}-${row.id}" value="${row.callNo050}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm">`;
+                displayCallNo050 = `<input type="text" id="rosli-c050-${tabId}-${row.id}" value="${row.callNo050 || ''}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm">`;
             }
 
             return `
                 <td class="px-3 py-3 text-center font-bold text-textCaption text-[11px]">${row.no}</td>
-                <td class="px-3 py-3 text-center font-medium text-textBody text-[11px]">${row.controlNo}</td>
-                <td class="px-3 py-3 text-center align-middle">${displayCallNo050}</td>
-                <td class="px-3 py-3 font-extrabold text-secondary dark:text-lightTeal text-[11px]">${row.accession}</td>
-                <td class="px-3 py-3 whitespace-normal break-words font-semibold leading-snug text-left text-xs text-textHeading">${row.title}</td>
-                <td class="px-3 py-3 font-bold text-textBody dark:text-gray-200 text-[11px]">${displayStaff}</td>
+                <td class="px-3 py-3 font-bold text-textBody dark:text-gray-200 text-[11px] text-center">${displayStaff}</td>
                 <td class="px-3 py-3 text-center font-medium text-[11px] text-textSecondary">${formatDisplayDate(row.date)}</td>
-                <td class="px-3 py-3">${statusBadge}</td>
+                <td class="px-3 py-3 text-center font-medium text-textBody text-[11px]">${row.controlNo || '-'}</td>
+                <td class="px-3 py-3 font-extrabold text-secondary dark:text-lightTeal text-[11px] text-center">${row.accession || '-'}</td>
+                <td class="px-3 py-3 text-center align-middle">${displayCallNo050}</td>
+                <td class="px-3 py-3 whitespace-normal break-words font-semibold leading-snug text-left text-xs text-textHeading">${row.title || '-'}</td>
+                <td class="px-3 py-3 text-center">${statusBadge}</td>
                 <td class="px-3 py-3 text-left min-w-[150px]">
                     ${row.approvedBy 
                         ? `<div class="flex items-center gap-2 whitespace-normal leading-tight">
