@@ -1252,10 +1252,12 @@
            FUNGSI LOG MASUK
            ===================================================================== */
         document.getElementById('login-role').addEventListener('change', function(e) {
+            const pwdContainer = document.getElementById('password-container');
             document.getElementById('login-error').classList.add('hidden');
             if (e.target.value !== '') {
+                pwdContainer.classList.remove('hidden');
                 document.getElementById('login-password').focus();
-            }
+            } else { pwdContainer.classList.add('hidden'); }
         });
 
         document.getElementById('login-password').addEventListener('keypress', function(e) {
@@ -1365,6 +1367,7 @@
         function logout() {
             document.getElementById('login-password').value = '';
             document.getElementById('login-role').value = '';
+            document.getElementById('password-container').classList.add('hidden');
             
             localStorage.removeItem('ipk_loggedIn');
             localStorage.removeItem('ipk_role');
@@ -1689,7 +1692,10 @@
                 body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }), 
                 headers: { 'Content-Type': 'text/plain' }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 if(data.error) throw new Error(data.error);
                 
@@ -1701,7 +1707,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Gagal meluluskan rekod: " + err.message);
+                alert("Ralat semasa menyimpan ke spreadsheet: Pautan mungkin tidak sah (404) atau tiada akses. Sila semak URL Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true);
             });
         }
@@ -1731,7 +1737,10 @@
                 body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }), 
                 headers: { 'Content-Type': 'text/plain' }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 if(data.error) throw new Error(data.error);
 
@@ -1743,7 +1752,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Gagal memproses reopen: " + err.message);
+                alert("Ralat semasa menyimpan ke spreadsheet: Pautan mungkin tidak sah (404) atau tiada akses. Sila semak URL Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true);
             });
         }
@@ -1926,7 +1935,10 @@
                 body: JSON.stringify({ action: 'updateRow', record: updatedRecord }), 
                 headers: { 'Content-Type': 'text/plain' }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 if(data.error) throw new Error(data.error);
 
@@ -1940,7 +1952,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Ralat semasa menyimpan ke spreadsheet: " + err.message);
+                alert("Ralat semasa menyimpan ke spreadsheet: Pautan mungkin tidak sah (404) atau tiada akses. Sila semak URL Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true); // Lakarkan kembali table untuk hilangkan status loading
             });
         }
