@@ -169,7 +169,7 @@
                         <option value="admin">Administrator</option>
                     </select>
                 </div>
-                <div id="password-container">
+                <div id="password-container" class="hidden">
                     <label class="block text-xs font-bold text-textSecondary dark:text-gray-400 mb-1.5 uppercase tracking-wider">Password</label>
                     <input type="password" id="login-password" placeholder="••••••••" class="w-full border border-cardBorder dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm dark:text-white shadow-sm outline-none transition-all focus:border-secondary focus:ring-1 focus:ring-secondary">
                 </div>
@@ -1232,10 +1232,14 @@
                 
                 fetch(GAS_WEB_APP_URL, {
                     method: 'POST', 
+                    redirect: 'follow',
                     body: JSON.stringify({ action: 'saveStaff', staffDB: staffList }), 
-                    headers: { 'Content-Type': 'text/plain' }
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                    return res.json();
+                })
                 .then(data => {
                     if (data.error) throw new Error(data.error);
                     hideLoading(); 
@@ -1243,7 +1247,7 @@
                 })
                 .catch(error => { 
                     hideLoading(); 
-                    alert("Gagal menyimpan data ke server: " + error.message); 
+                    alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + error.message); 
                 });
             }
         };
@@ -1689,8 +1693,9 @@
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
+                redirect: 'follow',
                 body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }), 
-                headers: { 'Content-Type': 'text/plain' }
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
@@ -1707,7 +1712,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Ralat semasa menyimpan ke spreadsheet: Pautan mungkin tidak sah (404) atau tiada akses. Sila semak URL Google Apps Script anda.\n\nButiran ralat: " + err.message);
+                alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true);
             });
         }
@@ -1734,8 +1739,9 @@
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
+                redirect: 'follow',
                 body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }), 
-                headers: { 'Content-Type': 'text/plain' }
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
@@ -1752,7 +1758,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Ralat semasa menyimpan ke spreadsheet: Pautan mungkin tidak sah (404) atau tiada akses. Sila semak URL Google Apps Script anda.\n\nButiran ralat: " + err.message);
+                alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true);
             });
         }
@@ -1932,8 +1938,9 @@
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
+                redirect: 'follow',
                 body: JSON.stringify({ action: 'updateRow', record: updatedRecord }), 
-                headers: { 'Content-Type': 'text/plain' }
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
             .then(res => {
                 if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
@@ -1952,7 +1959,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Ralat semasa menyimpan ke spreadsheet: Pautan mungkin tidak sah (404) atau tiada akses. Sila semak URL Google Apps Script anda.\n\nButiran ralat: " + err.message);
+                alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true); // Lakarkan kembali table untuk hilangkan status loading
             });
         }
