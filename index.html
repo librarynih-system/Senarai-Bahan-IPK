@@ -411,11 +411,6 @@
                             </h3>
                             <div class="relative w-full flex-1 min-h-[150px] pb-2 flex items-center justify-center">
                                 <canvas id="statusChart"></canvas>
-                                <!-- Center Text for Doughnut -->
-                                <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none mt-4">
-                                    <span class="text-2xl font-bold text-textHeading dark:text-white font-montserrat" id="chart-center-total">0</span>
-                                    <span class="text-[10px] text-textCaption font-semibold">Total</span>
-                                </div>
                             </div>
                         </div>
                         
@@ -665,7 +660,7 @@
                 
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <svg class="w-4 h-4 text-textCaption" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+                        <svg class="w-4 h-4 text-textCaption" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"></path></svg>
                     </div>
                     <input type="email" id="staff-email" placeholder="Email Address" class="w-full text-xs border border-cardBorder dark:border-gray-600 pl-9 pr-3 py-2.5 bg-white dark:bg-gray-800 text-textBody dark:text-gray-200 transition-colors shadow-sm">
                 </div>
@@ -1055,7 +1050,7 @@
         /* =====================================================================
            KONFIGURASI API (UNTUK HOSTING DI GITHUB/EXTERNAL)
            ===================================================================== */
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw4r1Ke_NcnMmUa_5ls1Gc9bLRFcvdEqcQeOf7ibTXsQ1dsEqYXBcRlJQbLFfCCJiRO/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzasdhRk9czqIBgv5WMiC6F7jDrECm_hQr48BoS1zfWZA8C07HEbM2yHv-Axz6RuY0r/exec";
         
         const statusOptions = ["Completed", "incomplete", "Pending For Approval"];
         
@@ -1254,10 +1249,12 @@
            FUNGSI LOG MASUK
            ===================================================================== */
         document.getElementById('login-role').addEventListener('change', function(e) {
+            const pwdContainer = document.getElementById('password-container');
             document.getElementById('login-error').classList.add('hidden');
             if (e.target.value !== '') {
+                pwdContainer.classList.remove('hidden');
                 document.getElementById('login-password').focus();
-            }
+            } else { pwdContainer.classList.add('hidden'); }
         });
 
         document.getElementById('login-password').addEventListener('keypress', function(e) {
@@ -1367,6 +1364,7 @@
         function logout() {
             document.getElementById('login-password').value = '';
             document.getElementById('login-role').value = '';
+            document.getElementById('password-container').classList.add('hidden');
             
             localStorage.removeItem('ipk_loggedIn');
             localStorage.removeItem('ipk_role');
@@ -1688,10 +1686,14 @@
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
-                body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }),
+                redirect: 'follow',
+                body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }), 
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 if(data.error) throw new Error(data.error);
                 
@@ -1703,7 +1705,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Gagal meluluskan rekod: " + err.message);
+                alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true);
             });
         }
@@ -1730,10 +1732,14 @@
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
-                body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }),
+                redirect: 'follow',
+                body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }), 
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 if(data.error) throw new Error(data.error);
 
@@ -1745,7 +1751,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Gagal memproses reopen: " + err.message);
+                alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true);
             });
         }
@@ -1925,10 +1931,14 @@
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
+                redirect: 'follow',
                 body: JSON.stringify({ action: 'updateRow', record: updatedRecord }),
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 if(data.error) throw new Error(data.error);
 
@@ -1942,7 +1952,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Ralat semasa menyimpan ke spreadsheet: " + err.message);
+                alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true); // Lakarkan kembali table untuk hilangkan status loading
             });
         }
