@@ -69,7 +69,7 @@
         .hover-lift:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,0,0,.1); }
         .dark .hover-lift:hover { box-shadow: 0 10px 30px rgba(0,0,0,.5); }
 
-        table { border-collapse: separate; border-spacing: 0 0; width: 100%; table-layout: auto; }
+        table { border-collapse: separate; border-spacing: 0 0; width: 100%; min-width: 100%; table-layout: auto; }
         th { font-weight: 600; font-size: 0.6rem; letter-spacing: 0.05em; text-transform: uppercase; }
         tr { transition: all 0.2s ease; }
         
@@ -169,7 +169,7 @@
                         <option value="admin">Administrator</option>
                     </select>
                 </div>
-                <div id="password-container" class="hidden">
+                <div id="password-container">
                     <label class="block text-xs font-bold text-textSecondary dark:text-gray-400 mb-1.5 uppercase tracking-wider">Password</label>
                     <input type="password" id="login-password" placeholder="••••••••" class="w-full border border-cardBorder dark:border-gray-700 bg-white dark:bg-gray-800 px-4 py-3 text-sm dark:text-white shadow-sm outline-none transition-all focus:border-secondary focus:ring-1 focus:ring-secondary">
                 </div>
@@ -277,7 +277,7 @@
                 </header>
 
                 <!-- TAB: DASHBOARD (KPIs & Summary Charts Only) -->
-                <div id="view-dashboard" class="tab-pane active flex-col flex-1 min-h-0">
+                <div id="view-dashboard" class="tab-pane active flex-col flex-1 min-h-0 w-full">
                     
                     <!-- Dashboard Filter Bar -->
                     <div class="glass-panel p-3 mb-5 flex flex-wrap items-center gap-3 shrink-0">
@@ -428,12 +428,11 @@
                 </div>
 
                 <!-- TAB: RECORDS -->
-                <div id="view-collection" class="tab-pane flex-col flex-1 min-h-0 relative h-full">
-                    
-                    <!-- Filters & Actions -->
-                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4 shrink-0">
-                        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
-                            <div class="relative flex-1 min-w-[200px]">
+                <div id="view-collection" class="tab-pane flex-col flex-1 min-h-0 relative h-full w-full">
+                    <div class="glass-panel flex flex-col flex-1 w-full overflow-hidden min-h-[400px]">
+                        <!-- Collection Filters -->
+                        <div class="p-3 flex flex-wrap items-center gap-2 border-b border-cardBorder dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-[18px]">
+                            <div class="flex-1 min-w-[200px] relative">
                                 <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-textCaption" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                                 <input type="text" id="search-collection" onkeyup="debouncedSearch('collection')" placeholder="Search Title or Accession..." class="w-full text-xs border border-cardBorder dark:border-gray-600 pl-8 pr-3 py-1.5 h-[36px] bg-white dark:bg-gray-900 focus:bg-white dark:focus:bg-gray-800 transition-all font-medium">
                             </div>
@@ -490,8 +489,8 @@
                         </div>
 
                         <!-- Collection Table Container -->
-                        <div class="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar bg-white dark:bg-gray-900 px-0 pb-0 pt-0 border-t border-cardBorder dark:border-gray-700 rounded-b-[18px]">
-                            <table class="w-full text-left whitespace-nowrap">
+                        <div class="flex-1 w-full overflow-y-auto overflow-x-auto custom-scrollbar bg-white dark:bg-gray-900 px-0 pb-0 pt-0 border-t border-cardBorder dark:border-gray-700 rounded-b-[18px]">
+                            <table class="w-full min-w-full lg:min-w-[1000px] text-left whitespace-nowrap">
                                 <thead class="bg-secondary text-white">
                                     <tr>
                                         <th class="px-3 py-3 text-center w-12 rounded-tl-lg">NO</th>
@@ -524,8 +523,8 @@
                 </div>
 
                 <!-- TAB: APPROVALS (Independent Structure) -->
-                <div id="view-approvals" class="tab-pane flex-col flex-1 min-h-0 relative">
-                    <div class="glass-panel flex flex-col flex-1 overflow-hidden min-h-[400px]">
+                <div id="view-approvals" class="tab-pane flex-col flex-1 min-h-0 relative w-full">
+                    <div class="glass-panel flex flex-col flex-1 w-full overflow-hidden min-h-[400px]">
                         <!-- Approvals Filters -->
                         <div class="p-3 flex flex-wrap items-center gap-2 border-b border-cardBorder dark:border-gray-700 bg-white dark:bg-gray-800 rounded-t-[18px]">
                             <div class="flex-1 min-w-[200px] relative">
@@ -582,8 +581,8 @@
                         </div>
 
                         <!-- Approvals Table Container -->
-                        <div class="flex-1 overflow-y-auto overflow-x-auto custom-scrollbar bg-white dark:bg-gray-900 px-0 pb-0 pt-0 border-t border-cardBorder dark:border-gray-700 rounded-b-[18px]">
-                            <table class="w-full text-left whitespace-nowrap">
+                        <div class="flex-1 w-full overflow-y-auto overflow-x-auto custom-scrollbar bg-white dark:bg-gray-900 px-0 pb-0 pt-0 border-t border-cardBorder dark:border-gray-700 rounded-b-[18px]">
+                            <table class="w-full min-w-full lg:min-w-[1000px] text-left whitespace-nowrap">
                                 <thead class="bg-secondary text-white">
                                     <tr>
                                         <th class="px-3 py-3 text-center w-12 rounded-tl-lg">NO</th>
@@ -616,7 +615,7 @@
                 </div>
 
                 <!-- TAB: STAFF MANAGEMENT -->
-                <div id="view-staff" class="tab-pane flex-col flex-1 overflow-y-auto">
+                <div id="view-staff" class="tab-pane flex-col flex-1 overflow-y-auto w-full">
                     <div class="flex justify-between items-center mb-6">
                         <h2 class="text-lg font-bold text-textHeading dark:text-white font-montserrat">Staff Directory</h2>
                         <button id="btn-add-staff" onclick="openStaffModal()" class="hidden bg-primary hover:bg-secondary text-white text-xs font-bold px-4 py-2 flex items-center gap-2 shadow-soft transition-all hover-lift">
@@ -1253,12 +1252,10 @@
            FUNGSI LOG MASUK
            ===================================================================== */
         document.getElementById('login-role').addEventListener('change', function(e) {
-            const pwdContainer = document.getElementById('password-container');
             document.getElementById('login-error').classList.add('hidden');
             if (e.target.value !== '') {
-                pwdContainer.classList.remove('hidden');
                 document.getElementById('login-password').focus();
-            } else { pwdContainer.classList.add('hidden'); }
+            }
         });
 
         document.getElementById('login-password').addEventListener('keypress', function(e) {
@@ -1368,7 +1365,6 @@
         function logout() {
             document.getElementById('login-password').value = '';
             document.getElementById('login-role').value = '';
-            document.getElementById('password-container').classList.add('hidden');
             
             localStorage.removeItem('ipk_loggedIn');
             localStorage.removeItem('ipk_role');
@@ -1780,18 +1776,18 @@
                 return `
                     <tr class="editing-row">
                         <td class="px-3 py-3 text-center font-bold text-textCaption text-[11px]">${row.no}</td>
-                        <td class="px-3 py-3">
+                        <td class="px-3 py-3 font-bold text-textBody dark:text-gray-200 text-[11px] text-center">
                             <select id="edit-staff-${tabId}-${row.id}" class="w-full text-[11px] px-1 py-1.5 border border-cardBorder rounded focus:border-secondary font-bold text-secondary shadow-sm transition-all bg-white outline-none">
                                 ${!dynamicStaffOptions.includes((row.staff || '').toUpperCase().trim()) ? `<option value="${row.staff}" style="display:none;" selected>${displayStaff}</option>` : ''}
                                 ${dynamicStaffOptions.map(opt => `<option value="${opt}" ${(row.staff || '').toUpperCase().trim() === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                             </select>
                         </td>
                         <td class="px-3 py-3 text-center font-medium text-[11px] text-textSecondary">${formatDisplayDate(row.date)}</td>
-                        <td class="px-3 py-3"><input type="text" id="edit-ctrl-${tabId}-${row.id}" value="${row.controlNo}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm outline-none"></td>
-                        <td class="px-3 py-3 font-extrabold text-primary text-[11px]">${row.accession}</td>
-                        <td class="px-3 py-3"><input type="text" id="edit-c050-${tabId}-${row.id}" value="${row.callNo050}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm outline-none"></td>
-                        <td class="px-3 py-3 whitespace-normal break-words font-semibold leading-snug text-left text-xs">${row.title}</td>
-                        <td class="px-3 py-3">${statusSelectHTML}</td>
+                        <td class="px-3 py-3 text-center font-medium text-textBody text-[11px]"><input type="text" id="edit-ctrl-${tabId}-${row.id}" value="${row.controlNo}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm outline-none"></td>
+                        <td class="px-3 py-3 font-extrabold text-secondary dark:text-lightTeal text-[11px] text-center">${row.accession || '-'}</td>
+                        <td class="px-3 py-3 text-center align-middle"><input type="text" id="edit-c050-${tabId}-${row.id}" value="${row.callNo050}" class="w-full text-[11px] px-2 py-1.5 border border-cardBorder rounded focus:border-secondary text-center transition-all bg-white text-textHeading shadow-sm outline-none"></td>
+                        <td class="px-3 py-3 whitespace-normal break-words font-semibold leading-snug text-left text-xs text-textHeading">${row.title || '-'}</td>
+                        <td class="px-3 py-3 text-center">${statusSelectHTML}</td>
                         <td class="px-3 py-3 text-left min-w-[150px]">
                             <span class="text-textCaption italic text-[11px] font-medium">Audit Trail locked.</span>
                         </td>
@@ -2022,6 +2018,7 @@
             });
 
             if (document.getElementById('stat-total')) document.getElementById('stat-total').textContent = total.toLocaleString();
+            if (document.getElementById('chart-center-total')) document.getElementById('chart-center-total').textContent = total.toLocaleString(); // TAMBAHAN: Kemaskini carta tengah
             if (document.getElementById('stat-completed')) document.getElementById('stat-completed').textContent = completed.toLocaleString();
             if (document.getElementById('stat-pending')) document.getElementById('stat-pending').textContent = pending;
             if (document.getElementById('stat-staff')) document.getElementById('stat-staff').textContent = Object.keys(staffCounts).length;
