@@ -1054,6 +1054,9 @@
         
         const statusOptions = ["Completed", "incomplete", "Pending For Approval"];
         
+        let staffChartInstance = null;
+        let statusChartInstance = null;
+        
         const getStaffDisplay = (staffName) => {
             if (!staffName || staffName.trim() === '') return '-';
             return staffName.toUpperCase();
@@ -1229,9 +1232,14 @@
                 
                 fetch(GAS_WEB_APP_URL, {
                     method: 'POST', 
-                    body: JSON.stringify({ action: 'saveStaff', staffDB: staffList })
+                    redirect: 'follow',
+                    body: JSON.stringify({ action: 'saveStaff', staffDB: staffList }), 
+                    headers: { 'Content-Type': 'text/plain;charset=utf-8' }
                 })
-                .then(res => res.json())
+                .then(res => {
+                    if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                    return res.json();
+                })
                 .then(data => {
                     if (data.error) throw new Error(data.error);
                     hideLoading(); 
@@ -1239,7 +1247,7 @@
                 })
                 .catch(error => { 
                     hideLoading(); 
-                    alert("Gagal menyimpan data ke server: " + error.message); 
+                    alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + error.message); 
                 });
             }
         };
@@ -1685,10 +1693,14 @@
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
+                redirect: 'follow',
                 body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }), 
-                headers: { 'Content-Type': 'text/plain' }
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 if(data.error) throw new Error(data.error);
                 
@@ -1700,7 +1712,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Gagal meluluskan rekod: " + err.message);
+                alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true);
             });
         }
@@ -1727,10 +1739,14 @@
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
+                redirect: 'follow',
                 body: JSON.stringify({ action: 'updateRow', record: recordToUpdate }), 
-                headers: { 'Content-Type': 'text/plain' }
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
-            .then(res => res.json())
+            .then(res => {
+                if (!res.ok) throw new Error(`HTTP Error: ${res.status}`);
+                return res.json();
+            })
             .then(data => {
                 if(data.error) throw new Error(data.error);
 
@@ -1742,7 +1758,7 @@
             })
             .catch(err => {
                 processingRows.delete(id);
-                alert("Gagal memproses reopen: " + err.message);
+                alert("Ralat semasa menyimpan: Pautan mungkin tidak sah atau terhalang (CORS). Sila semak deployment Google Apps Script anda.\n\nButiran ralat: " + err.message);
                 applyFilters(tabId, true);
             });
         }
@@ -1777,8 +1793,8 @@
                         <td class="px-3 py-3 text-center font-bold text-textCaption text-[11px]">${row.no}</td>
                         <td class="px-3 py-3 font-bold text-textBody dark:text-gray-200 text-[11px] text-center">
                             <select id="edit-staff-${tabId}-${row.id}" class="w-full text-[11px] px-1 py-1.5 border border-cardBorder rounded focus:border-secondary font-bold text-secondary shadow-sm transition-all bg-white outline-none">
-                                ${!dynamicStaffOptions.includes((row.staff || '').trim()) ? `<option value="${row.staff}" style="display:none;" selected>${displayStaff}</option>` : ''}
-                                ${dynamicStaffOptions.map(opt => `<option value="${opt}" ${(row.staff || '').toUpperCase().trim() === opt.toUpperCase() ? 'selected' : ''}>${opt}</option>`).join('')}
+                                ${!dynamicStaffOptions.includes((row.staff || '').toUpperCase().trim()) ? `<option value="${row.staff}" style="display:none;" selected>${displayStaff}</option>` : ''}
+                                ${dynamicStaffOptions.map(opt => `<option value="${opt}" ${(row.staff || '').toUpperCase().trim() === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                             </select>
                         </td>
                         <td class="px-3 py-3 text-center font-medium text-[11px] text-textSecondary">${formatDisplayDate(row.date)}</td>
@@ -1922,7 +1938,8 @@
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
-                body: JSON.stringify({ action: 'updateRow', record: updatedRecord }),
+                redirect: 'follow',
+                body: JSON.stringify({ action: 'updateRow', record: updatedRecord }), 
                 headers: { 'Content-Type': 'text/plain;charset=utf-8' }
             })
             .then(res => {
