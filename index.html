@@ -666,9 +666,12 @@
                                 </div>
                             </div>
                             
-                            <div class="flex justify-end pt-2 border-t border-theme-border mt-4">
+                            <div class="flex justify-between pt-4 border-t border-theme-border mt-4">
+                                <button onclick="restoreGlobalSettings()" class="bg-theme-card border border-theme-border hover:bg-theme-bg text-theme-body text-xs font-bold px-4 py-2.5 rounded-lg transition-all shadow-sm">
+                                    Restore Previous Version
+                                </button>
                                 <button onclick="saveGlobalSettings()" class="bg-theme-primary hover:bg-theme-secondary text-white text-xs font-bold px-6 py-2.5 rounded-lg transition-all shadow-theme-glow hover:-translate-y-0.5">
-                                    Save Branding Configuration
+                                    Save Configuration
                                 </button>
                             </div>
                         </div>
@@ -855,7 +858,8 @@
 
     <!-- ================== JAVASCRIPT LOGIC ================== -->
     <script>
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzhdhMpng4QfRtBlBNmy2kVfVrmD-e_ZzxKjTVb5A86CUHDHFaPvdpkRfCtPC-uHhQj/exec";
+        // Update this URL after deploying your Code.gs
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzINC2V2-SSxW_upVIpoST5KdNglbwP29d0UZkwxrrm17ucqqJ1xJAlHkQmOeZD3QaK/exec"; 
         
         let masterData = []; 
         let dashboardData = []; 
@@ -876,13 +880,13 @@
         const FALLBACK_LOGO = "assets/logo/default.png";
         
         let globalBranding = {
-            systemName: "Sistem Pengurusan Koleksi",
+            systemName: "Sistem Pengurusan Koleksi Buku",
             systemShortName: "Koleksi",
             companyName: "Kementerian Kesihatan Malaysia",
             logoUrl: FALLBACK_LOGO,
             version: "1.0",
-            copyright: "© 2026",
-            supportEmail: "",
+            copyright: "© 2026 KKM",
+            supportEmail: "support@kkm.gov.my",
             updatedBy: "-",
             updatedDate: "-"
         };
@@ -979,15 +983,20 @@
                     if (!isSilent) hideLoading();
                     return;
                 }
+                
                 fetch(`${GAS_WEB_APP_URL}?action=getInitialData&institute=${currentInstituteKey}`)
-                    .then(res => res.json())
+                    .then(res => {
+                        if (!res.ok) throw new Error("HTTP Status " + res.status);
+                        return res.json();
+                    })
                     .then(data => {
-                        if (data.error) throw new Error(data.error);
+                        if (data && data.error) throw new Error(data.error);
                         if(this.cb) this.cb(data);
                     })
                     .catch(err => {
                         console.error('getInitialData Error:', err);
                         if(this.cb) this.cb([]);
+                        if(!isSilent) showToast("Failed to load records.", true);
                     })
                     .finally(() => {
                         if (!isSilent) hideLoading();
@@ -998,11 +1007,10 @@
                 fetch(`${GAS_WEB_APP_URL}?action=getGlobalSettings`)
                     .then(res => res.json())
                     .then(data => {
-                        if (data.error) throw new Error(data.error);
+                        if (data && data.error) throw new Error(data.error);
                         updateSystemBranding(data);
                     })
-                    .catch(err => console.error('getGlobalSettings Error:', err))
-                    .finally(() => hideLoading());
+                    .catch(err => console.error('getGlobalSettings Error:', err));
             },
 
             getStaffData: function() {
@@ -1010,7 +1018,7 @@
                 fetch(`${GAS_WEB_APP_URL}?action=getStaffData&institute=${currentInstituteKey}`)
                     .then(res => res.json())
                     .then(data => {
-                        if (data.error) throw new Error(data.error);
+                        if (data && data.error) throw new Error(data.error);
                         if (Array.isArray(data) && data.length > 0) {
                             staffDB = data;
                         } else {
@@ -1023,9 +1031,16 @@
             },
 
             saveStaff: function(staffList) {
+                showLoading("Syncing Staff Data...");
                 fetch(GAS_WEB_APP_URL, {
                     method: 'POST', 
-                    body: JSON.stringify({ action: 'saveStaff', institute: currentInstituteKey, role: currentUserRole, username: currentUserName, staffDB: staffList })
+                    body: JSON.stringify({ 
+                        action: 'saveStaff', 
+                        institute: currentInstituteKey, 
+                        role: currentUserRole, 
+                        username: currentUserName, 
+                        staffDB: staffList 
+                    })
                 })
                 .then(res => res.json())
                 .then(data => {
@@ -1040,7 +1055,12 @@
                 showLoading("Saving configuration...");
                 fetch(GAS_WEB_APP_URL, {
                     method: 'POST', 
-                    body: JSON.stringify({ action: 'saveGlobalSettings', role: currentUserRole, username: currentUserName, payload: payload })
+                    body: JSON.stringify({ 
+                        action: 'saveGlobalSettings', 
+                        role: currentUserRole, 
+                        username: currentUserName, 
+                        payload: payload 
+                    })
                 })
                 .then(res => res.json())
                 .then(data => {
@@ -1048,7 +1068,8 @@
                     showToast("Branding successfully updated!");
                     server.getGlobalSettings(); 
                 })
-                .catch(err => { hideLoading(); alert("Failed to save settings: " + err.message); });
+                .catch(err => alert("Failed to save settings: " + err.message))
+                .finally(() => hideLoading());
             },
 
             uploadLogo: function(payload) {
@@ -1072,7 +1093,8 @@
                     resetUploadState();
                     server.getGlobalSettings();
                 })
-                .catch(err => { hideLoading(); alert("Upload failed: " + err.message); });
+                .catch(err => alert("Upload failed: " + err.message))
+                .finally(() => hideLoading());
             },
 
             resetLogo: function(targetKey) {
@@ -1092,7 +1114,28 @@
                     showToast("Logo reset successfully!");
                     server.getGlobalSettings();
                 })
-                .catch(err => { hideLoading(); alert("Reset failed: " + err.message); });
+                .catch(err => alert("Reset failed: " + err.message))
+                .finally(() => hideLoading());
+            },
+
+            restoreLastVersion: function() {
+                showLoading("Restoring Previous Version...");
+                fetch(GAS_WEB_APP_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'restoreLastVersion',
+                        role: currentUserRole,
+                        username: currentUserName
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    showToast("Settings restored!");
+                    updateSystemBranding(data.data);
+                })
+                .catch(err => alert("Restore failed: " + err.message))
+                .finally(() => hideLoading());
             }
         };
 
@@ -1487,7 +1530,12 @@
                 supportEmail: email
             };
             
-            server.saveGlobalSettings(settingsToSave);
+            server.saveGlobalSettings({ settings: settingsToSave });
+        }
+        
+        function restoreGlobalSettings() {
+            if(!confirm("Anda pasti mahu kembalikan tetapan kepada versi sebelumnya?")) return;
+            server.restoreLastVersion();
         }
 
         let tabStates = {
@@ -2005,6 +2053,7 @@
                 date: newDate
             };
 
+            showLoading("Saving Record...");
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
                 body: JSON.stringify({ action: 'updateRow', institute: currentInstituteKey, record: updatedRecord })
@@ -2018,7 +2067,10 @@
                 showToast("Record successfully updated.");
             })
             .catch(err => { alert("Ralat: " + err.message); applyFilters(tabId, true); })
-            .finally(() => processingRows.delete(id));
+            .finally(() => {
+                processingRows.delete(id);
+                hideLoading();
+            });
         }
 
         function approveSingleRow(id, tabId) {
@@ -2145,7 +2197,7 @@
             const statusCtx = document.getElementById('statusChart');
             if(!statusCtx) return;
 
-            if (statusChartInstance) statusChartInstance.destroy();
+            if (window.statusChartInstance) window.statusChartInstance.destroy();
             
             const rootStyle = getComputedStyle(document.documentElement);
             const successColor = rootStyle.getPropertyValue('--color-success').trim();
@@ -2156,7 +2208,7 @@
             const textColor = document.documentElement.classList.contains('dark') ? '#94a3b8' : rootStyle.getPropertyValue('--color-secondaryText').trim();
             const gridColor = document.documentElement.classList.contains('dark') ? '#334155' : rootStyle.getPropertyValue('--color-border').trim();
 
-            statusChartInstance = new Chart(statusCtx.getContext('2d'), {
+            window.statusChartInstance = new Chart(statusCtx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
                     labels: ['Completed', 'Pending Approval', 'Incomplete'],
@@ -2180,8 +2232,8 @@
             
             const staffCtxEl = document.getElementById('staffChart');
             if(staffCtxEl) {
-                if (staffChartInstance) staffChartInstance.destroy();
-                staffChartInstance = new Chart(staffCtxEl.getContext('2d'), {
+                if (window.staffChartInstance) window.staffChartInstance.destroy();
+                window.staffChartInstance = new Chart(staffCtxEl.getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: fixedOrder,
@@ -2378,11 +2430,11 @@
         }
 
         function activityHandler() {
-            if (!isThrottled && currentUserRole) {
+            if (!window.isThrottled && currentUserRole) {
                 updateActivity();
                 hideSessionWarning(); 
-                isThrottled = true;
-                setTimeout(() => { isThrottled = false; }, 2000); 
+                window.isThrottled = true;
+                setTimeout(() => { window.isThrottled = false; }, 2000); 
             }
         }
 
@@ -2419,7 +2471,8 @@
 
                     setElementText('profile-name', currentUserName);
                     setElementText('profile-initial', currentUserName.charAt(0));
-                    setElementText('profile-initial-sidebar', currentUserName.charAt(0));
+                    const sidebarInitial = document.getElementById('profile-initial-sidebar');
+                    if (sidebarInitial) sidebarInitial.textContent = currentUserName.charAt(0);
                     setElementText('sidebar-username', currentUserName);
 
                     const settingsLink = document.getElementById('nav-link-settings');
