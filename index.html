@@ -914,7 +914,7 @@
 
     <!-- ================== JAVASCRIPT LOGIC ================== -->
     <script>
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyIWlgII3VQVNAmdZwNmy3V_mbngWzyiRoGbMMq5TSO70AfUFgfeZWEpHlaX1nv6b0S/exec";
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzhdhMpng4QfRtBlBNmy2kVfVrmD-e_ZzxKjTVb5A86CUHDHFaPvdpkRfCtPC-uHhQj/exec";
         
         let masterData = []; 
         let dashboardData = []; 
@@ -1295,8 +1295,10 @@
                 server.getGlobalSettings();
             })
             .catch(error => {
+                setTimeout(() => { alert("Upload failed: " + error.message); }, 50);
+            })
+            .finally(() => {
                 hideLoading();
-                alert("Upload failed: " + error.message);
             });
         }
 
@@ -1325,8 +1327,155 @@
                 server.getGlobalSettings(); // Refresh
             })
             .catch(error => {
+                setTimeout(() => { alert("Reset failed: " + error.message); }, 50);
+            })
+            .finally(() => {
                 hideLoading();
-                alert("Reset failed: " + error.message);
+            });
+        }
+
+        const server = {
+            withSuccessHandler: function(cb) { this.cb = cb; return this; },
+            
+            getInitialData: function(isSilent = false) { 
+                if (!currentInstituteKey) {
+                    if (!isSilent) hideLoading();
+                    return;
+                }
+                
+                fetch(`${GAS_WEB_APP_URL}?action=getInitialData&institute=${currentInstituteKey}`)
+                    .then(response => { if(!response.ok) throw new Error("HTTP Error"); return response.text(); })
+                    .then(text => {
+                        try {
+                            const data = JSON.parse(text);
+                            if (data.error) {
+                                console.error("Backend Error: ", data.error);
+                                if(this.cb) this.cb([]); 
+                            } else {
+                                if(this.cb) this.cb(data);
+                            }
+                        } catch(e) { 
+                            console.error("JSON Parse Error: ", e); 
+                            if(this.cb) this.cb([]);
+                        }
+                    })
+                    .catch(error => { 
+                        console.error('Fetch Error:', error); 
+                        if(this.cb) this.cb([]);
+                    })
+                    .finally(() => {
+                        if (!isSilent) hideLoading();
+                    });
+            },
+
+            getGlobalSettings: function() {
+                fetch(`${GAS_WEB_APP_URL}?action=getGlobalSettings`)
+                    .then(response => { if(!response.ok) throw new Error("HTTP Error"); return response.text(); })
+                    .then(text => {
+                        try {
+                            const data = JSON.parse(text);
+                            updateSystemBranding(data);
+                            updateLogoPreviewTarget(); // Update preview if settings pane is open
+                        } catch(e) { console.error("JSON Error (Settings): ", e); }
+                    })
+                    .catch(error => { console.error('Fetch Settings Error:', error); })
+                    .finally(() => { hideLoading(); });
+            },
+
+            getStaffData: function() {
+                fetch(`${GAS_WEB_APP_URL}?action=getStaffData&institute=${currentInstituteKey}`)
+                    .then(response => { if(!response.ok) throw new Error("HTTP Error"); return response.text(); })
+                    .then(text => { 
+                        try {
+                            const data = JSON.parse(text);
+                            if(data && Array.isArray(data)) {
+                                staffDB = data.length > 0 ? data : JSON.parse(JSON.stringify(defaultStaffDB));
+                                populateStaffDropdowns();
+                                if (currentActiveTab === 'staff') renderStaffDirectory();
+                            }
+                        } catch(e) { console.error("JSON Error (Staff): ", e); }
+                    })
+                    .catch(error => console.error('Fetch Staff Error:', error));
+            },
+
+            saveStaff: function(staffList) {
+                fetch(GAS_WEB_APP_URL, {
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'saveStaff', institute: currentInstituteKey, role: currentUserRole, username: currentUserName, staffDB: staffList }), 
+                    headers: { 'Content-Type': 'text/plain' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    showToast("Staff Database synced!");
+                })
+                .catch(error => { alert("Failed to save staff data: " + error.message); })
+                .finally(() => { hideLoading(); });
+            },
+
+            saveGlobalSettings: function(payload) {
+                showLoading("Saving configuration...");
+                fetch(GAS_WEB_APP_URL, {
+                    method: 'POST', 
+                    body: JSON.stringify({ action: 'saveGlobalSettings', role: currentUserRole, username: currentUserName, payload: payload }), 
+                    headers: { 'Content-Type': 'text/plain' }
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.error) throw new Error(data.error);
+                    showToast("Branding successfully updated!");
+                    server.getGlobalSettings(); // Fetch complete updated set
+                })
+                .catch(error => { alert("Failed to save settings: " + error.message); })
+                .finally(() => { hideLoading(); });
+            }
+        };
+
+        function restorePreviousSettings() {
+            if(!confirm("Rollback to previous settings version?")) return;
+            showLoading("Restoring version...");
+            fetch(GAS_WEB_APP_URL, {
+                method: 'POST', 
+                body: JSON.stringify({ action: 'restoreLastVersion', role: currentUserRole, username: currentUserName }), 
+                headers: { 'Content-Type': 'text/plain' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                showToast("Version restored successfully!");
+                server.getGlobalSettings(); 
+            })
+            .catch(error => { alert("Restore failed: " + error.message); })
+            .finally(() => { hideLoading(); });
+        }
+
+        function resetLogoTarget() {
+            const targetKey = document.getElementById('logo-target-select').value;
+            const targetName = document.getElementById('logo-target-select').options[document.getElementById('logo-target-select').selectedIndex].text;
+            
+            if(!confirm(`Are you sure you want to reset the logo for [${targetName}] to default?`)) return;
+
+            showLoading("Resetting logo...");
+            
+            fetch(GAS_WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ 
+                    action: 'resetLogo', 
+                    role: currentUserRole,
+                    username: currentUserName,
+                    targetKey: targetKey 
+                }),
+                headers: { 'Content-Type': 'text/plain' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.error) throw new Error(data.error);
+                showToast("Logo reset to default.");
+                server.getGlobalSettings(); // Refresh
+            })
+            .catch(error => {
+                hideLoading();
+                setTimeout(() => { alert("Reset failed: " + error.message); }, 50);
             });
         }
 
@@ -1861,7 +2010,6 @@
 
         function fetchDataFromGoogleSheet(isSilent = false) {
             if (!currentInstituteKey) return;
-            isConfigLoading = !isSilent;
             if (!isSilent) showLoading("Syncing...");
             
             server.withSuccessHandler(function(data) {
@@ -1872,8 +2020,7 @@
                 else if (currentActiveTab === 'collection') applyFilters('collection', true); 
                 else if (currentActiveTab === 'approvals') applyFilters('approvals', true); 
                 
-                isConfigLoading = false;
-            }).getInitialData();
+            }).getInitialData(isSilent);
 
             server.getStaffData();
         }
@@ -2121,14 +2268,14 @@
                 
                 masterData[index] = recordToUpdate;
                 applyFilters(tabId, true);
-                
-                processingRows.delete(id);
                 showToast("Record successfully approved!");
             })
             .catch(err => {
-                processingRows.delete(id);
                 alert("Gagal meluluskan rekod: " + err.message);
                 applyFilters(tabId, true);
+            })
+            .finally(() => {
+                processingRows.delete(id);
             });
         }
         
@@ -2163,14 +2310,14 @@
 
                 masterData[index] = recordToUpdate;
                 applyFilters(tabId, true);
-                
-                processingRows.delete(id);
                 showToast("Rekod dibuka semula (Reopened)!");
             })
             .catch(err => {
-                processingRows.delete(id);
                 alert("Gagal memproses reopen: " + err.message);
                 applyFilters(tabId, true);
+            })
+            .finally(() => {
+                processingRows.delete(id);
             });
         }
 
@@ -2365,14 +2512,14 @@
                 masterData[index] = updatedRecord;
                 editingId = null;
                 applyFilters(tabId, true);
-
-                processingRows.delete(id);
                 showToast("Record successfully updated.");
             })
             .catch(err => {
-                processingRows.delete(id);
                 alert("Ralat semasa menyimpan ke spreadsheet: " + err.message);
                 applyFilters(tabId, true); 
+            })
+            .finally(() => {
+                processingRows.delete(id);
             });
         }
 
