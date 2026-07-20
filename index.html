@@ -862,7 +862,7 @@
     <!-- ================== JAVASCRIPT LOGIC ================== -->
     <script>
         // Update this URL after deploying your Code.gs
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzINC2V2-SSxW_upVIpoST5KdNglbwP29d0UZkwxrrm17ucqqJ1xJAlHkQmOeZD3QaK/exec"; 
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyVwsabuezi8Z3s780KsuHDgAwQNAxIMzZNWJtocPhFmGXMSdr69mcPDQtq7ZsZ0btW/exec"; 
         
         let masterData = []; 
         let dashboardData = []; 
@@ -1317,6 +1317,18 @@
                 'approvals': { search: '', lastSearch: '', staff: '', status: 'Pending For Approval', tahun: '', page: 1, filtered: [] },
                 'dashboard': { staff: '', status: '', tahun: '' }
             };
+
+            ['collection', 'approvals'].forEach(tabId => {
+                const table = document.querySelector(`#view-${tabId} table`);
+                if (table) {
+                    const headers = table.querySelectorAll('thead th');
+                    headers.forEach(th => {
+                        if (th.textContent.includes('(082)')) {
+                            th.style.display = (key === 'IKU') ? '' : 'none';
+                        }
+                    });
+                }
+            });
             
             const firstLink = document.querySelector('.nav-link');
             switchTab('dashboard', firstLink);
@@ -1801,6 +1813,13 @@
             const fragment = document.createDocumentFragment();
             const filteredDataset = tabStates[tabId].filtered;
             const currentPage = tabStates[tabId].page;
+
+            let visibleColsCount = 11;
+            const tableEl = document.querySelector(`#view-${tabId} table`);
+            if (tableEl) {
+                const headers = Array.from(tableEl.querySelectorAll('thead th'));
+                visibleColsCount = headers.filter(th => window.getComputedStyle(th).display !== 'none').length || 11;
+            }
             
             if (currentUserRole === 'rosli' && tabId === 'approvals') {
                 if(paginationDiv) paginationDiv.classList.add('hidden'); 
@@ -1814,7 +1833,7 @@
 
                 if(Object.keys(groupedData).length === 0) {
                     const tr = document.createElement('tr');
-                    tr.innerHTML = `<td colspan="11" class="px-5 py-10 text-center text-theme-muted font-medium italic text-sm">No records require your action.</td>`;
+                    tr.innerHTML = `<td colspan="${visibleColsCount}" class="px-5 py-10 text-center text-theme-muted font-medium italic text-sm">No records require your action.</td>`;
                     fragment.appendChild(tr);
                 } else {
                     for (let staffName in groupedData) {
@@ -1822,7 +1841,7 @@
                         const groupHeader = document.createElement('tr');
                         groupHeader.className = "bg-theme-primary/5 sticky top-[30px] z-10 pointer-events-none"; 
                         groupHeader.innerHTML = `
-                            <td colspan="11" class="px-4 py-2 !bg-theme-primary/10">
+                            <td colspan="${visibleColsCount}" class="px-4 py-2 !bg-theme-primary/10">
                                 <div class="flex items-center gap-3">
                                     <span class="text-[11px] font-bold text-theme-primary uppercase tracking-widest">Staff Collection</span>
                                     <span class="text-theme-heading font-extrabold text-xs tracking-wide">${staffName}</span>
@@ -1847,7 +1866,7 @@
                 const paginatedData = filteredDataset.slice(startIndex, endIndex);
                 
                 if (paginatedData.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="11" class="px-5 py-10 text-center text-theme-muted font-medium italic text-sm">No records found.</td></tr>`; 
+                    tbody.innerHTML = `<tr><td colspan="${visibleColsCount}" class="px-5 py-10 text-center text-theme-muted font-medium italic text-sm">No records found.</td></tr>`; 
                 } else {
                     const currentRows = Array.from(tbody.querySelectorAll(`tr[id^="row-${tabId}-"]`));
                     const paginatedIds = paginatedData.map(r => `row-${tabId}-${r.id}`);
@@ -1902,9 +1921,12 @@
             const isCompleted = currentStatusLower === 'completed';
 
             if (isEditing && !isReadonlyView) {
-                let call082HTML = (currentUserRole === 'staff')
-                    ? `<td class="px-3 py-3 text-center whitespace-normal break-words w-[130px] max-w-[130px] leading-tight font-medium text-theme-heading text-[11px]">${row.callNo082}<input type="hidden" id="edit-c082-${tabId}-${row.id}" value="${row.callNo082}"></td>`
-                    : `<td class="px-3 py-3"><input type="text" id="edit-c082-${tabId}-${row.id}" value="${row.callNo082}" class="w-full text-[11px] px-2 py-1.5 border border-theme-border rounded focus:border-theme-primary text-center transition-all bg-theme-card text-theme-body shadow-sm"></td>`;
+                let call082HTML = "";
+                if (currentInstituteKey === 'IKU') {
+                    call082HTML = (currentUserRole === 'staff')
+                        ? `<td class="px-3 py-3 text-center whitespace-normal break-words w-[130px] max-w-[130px] leading-tight font-medium text-theme-heading text-[11px]">${row.callNo082 || '-'}<input type="hidden" id="edit-c082-${tabId}-${row.id}" value="${row.callNo082 || ''}"></td>`
+                        : `<td class="px-3 py-3"><input type="text" id="edit-c082-${tabId}-${row.id}" value="${row.callNo082 || ''}" class="w-full text-[11px] px-2 py-1.5 border border-theme-border rounded focus:border-theme-primary text-center transition-all bg-theme-card text-theme-body shadow-sm"></td>`;
+                }
 
                 let statusSelectHTML = '';
                 if (currentUserRole === 'staff') {
@@ -1990,10 +2012,15 @@
                 displayCallNo050 = `<input type="text" id="rosli-c050-${tabId}-${row.id}" value="${row.callNo050}" class="w-full text-[11px] px-2 py-1.5 border border-theme-border rounded focus:border-theme-primary text-center transition-all bg-theme-card text-theme-body shadow-sm">`;
             }
 
+            let normalCall082HTML = "";
+            if (currentInstituteKey === 'IKU') {
+                normalCall082HTML = `<td class="px-3 py-3 text-center font-medium whitespace-normal break-words w-[130px] max-w-[130px] leading-relaxed text-[11px]">${row.callNo082 || '-'}</td>`;
+            }
+
             return `
                 <td class="px-3 py-3 text-center font-bold text-theme-muted text-[11px]">${row.no}</td>
                 <td class="px-3 py-3 text-center font-medium text-[11px]">${row.controlNo}</td>
-                <td class="px-3 py-3 text-center font-medium whitespace-normal break-words w-[130px] max-w-[130px] leading-relaxed text-[11px]">${row.callNo082}</td>
+                ${normalCall082HTML}
                 <td class="px-3 py-3 text-center align-middle">${displayCallNo050}</td>
                 <td class="px-3 py-3 font-extrabold text-theme-info text-[11px]">${row.accession}</td>
                 <td class="px-3 py-3 whitespace-normal break-words font-semibold leading-snug text-left text-xs">${row.title}</td>
@@ -2514,6 +2541,27 @@
             }
             logout(); 
         }
+
+        document.addEventListener("DOMContentLoaded", () => {
+            const BRANDING_CACHE_KEY = "system_branding_cache";
+            
+            const cache = JSON.parse(localStorage.getItem(BRANDING_CACHE_KEY) || "null");
+            if (cache) {
+                updateSystemBranding(cache);
+            }
+
+            if (GAS_WEB_APP_URL !== "") {
+                fetch(`${GAS_WEB_APP_URL}?action=getGlobalSettings`)
+                    .then(res => res.json())
+                    .then(data => {
+                        if (data && !data.error) {
+                            localStorage.setItem(BRANDING_CACHE_KEY, JSON.stringify(data));
+                            updateSystemBranding(data);
+                        }
+                    })
+                    .catch(err => console.log("Background branding sync failed:", err));
+            }
+        });
 
         // Initialize App
         checkAutoLogin();
