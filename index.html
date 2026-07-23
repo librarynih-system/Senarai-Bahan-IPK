@@ -372,9 +372,9 @@
                             <div class="w-32">
                                 <select id="dash-filter-status" onchange="updateDashboardStats()" class="w-full text-[11px] border border-theme-border rounded-lg px-2 h-[36px] bg-theme-card cursor-pointer appearance-none text-theme-body font-semibold shadow-sm transition-all hover:border-theme-primary" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1em;">
                                     <option value="">Status: All</option>
-                                    <option value="Completed">Completed</option>
+                                    <option value="Complete">Complete</option>
                                     <option value="Pending For Approval">Pending</option>
-                                    <option value="incomplete">Incomplete</option>
+                                    <option value="Not Complete">Not Complete</option>
                                 </select>
                             </div>
                             <div class="w-28">
@@ -490,7 +490,7 @@
                                 </div>
                                 <div class="w-32">
                                     <select id="status-collection" onchange="applyFilters('collection')" class="w-full text-[11px] border border-theme-border rounded-lg px-2 h-[36px] bg-theme-card cursor-pointer appearance-none text-theme-body font-semibold shadow-sm transition-all hover:border-theme-primary" style="background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%24%2024%22%20fill%3D%22none%22%20stroke%3D%22%239ca3af%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E'); background-position: right 0.5rem center; background-repeat: no-repeat; background-size: 1em;">
-                                        <option value="">Status: All</option><option value="Completed">Completed</option><option value="Pending For Approval">Pending</option><option value="incomplete">Incomplete</option>
+                                        <option value="">Status: All</option><option value="Complete">Complete</option><option value="Pending For Approval">Pending</option><option value="Not Complete">Not Complete</option>
                                     </select>
                                 </div>
                                 <div class="w-28">
@@ -926,6 +926,22 @@
         function hexToRgb(hex) {
             let result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
             return result ? `${parseInt(result[1], 16)}, ${parseInt(result[2], 16)}, ${parseInt(result[3], 16)}` : null;
+        }
+
+        // ==========================================
+        // PATCH: STATUS NORMALIZATION
+        // ==========================================
+        function normalizeStatus(statusRaw) {
+            if (!statusRaw) return "Not Complete";
+            const s = String(statusRaw).toLowerCase().trim();
+            if (s === "complete" || s === "completed") {
+                return "Complete";
+            }
+            if (s === "pending for approval") {
+                return "Pending For Approval";
+            }
+            // Everything else maps to "Not Complete"
+            return "Not Complete";
         }
 
         function setElementText(id, text) {
@@ -1722,12 +1738,19 @@
             const elTahun = document.getElementById('dash-filter-tahun');
             
             const dashFilterStaff = elStaff ? elStaff.value : "";
-            const dashFilterStatus = elStatus ? elStatus.value : "";
+            // Use normalizeStatus for filtering status
+            const dashFilterStatus = elStatus ? normalizeStatus(elStatus.value) : "";
             const dashFilterTahun = elTahun ? elTahun.value : "";
 
             dashboardData = masterData.filter(row => {
                 if (dashFilterStaff !== "" && getStaffDisplay(row.staff) !== dashFilterStaff) return false;
-                if (dashFilterStatus !== "" && (row.status || "").toLowerCase().trim() !== dashFilterStatus.toLowerCase().trim()) return false;
+                // Compare normalized statuses
+                if (dashFilterStatus !== "" && dashFilterStatus !== "Not Complete" && normalizeStatus(row.status) !== dashFilterStatus) return false;
+                // Special case for dashboard empty state filter vs "Not Complete"
+                if (elStatus && elStatus.value === "" && dashFilterStatus === "Not Complete") {
+                    // Do not filter out anything if "All" is selected, even though normalizeStatus("") is "Not Complete"
+                } else if (dashFilterStatus !== "" && normalizeStatus(row.status) !== dashFilterStatus) return false;
+
                 if (dashFilterTahun !== "" && getYearFromDate(row.date) !== dashFilterTahun) return false;
                 return true;
             });
@@ -1748,11 +1771,13 @@
             const tahunVal = elTahun ? elTahun.value : "";
             
             let statusVal = "";
+            let originalStatusVal = "";
             if (tabId === 'approvals') {
-                statusVal = 'pending for approval';
+                statusVal = 'Pending For Approval';
             } else {
                 const elStatus = document.getElementById(`status-${tabId}`);
-                statusVal = elStatus ? elStatus.value : "";
+                originalStatusVal = elStatus ? elStatus.value : "";
+                statusVal = originalStatusVal ? normalizeStatus(originalStatusVal) : "";
             }
 
             if (searchVal !== "" && searchVal !== tabStates[tabId].lastSearch) {
@@ -1774,7 +1799,8 @@
                     if (!titleMatch && !accMatch) match = false;
                 }
                 if (staffVal !== "" && getStaffDisplay(row.staff) !== staffVal) match = false;
-                if (statusVal !== "" && (row.status || "").toLowerCase().trim() !== statusVal.toLowerCase().trim()) match = false;
+                // Compare normalized statuses
+                if (statusVal !== "" && normalizeStatus(row.status) !== statusVal) match = false;
                 if (tahunVal !== "" && getYearFromDate(row.date) !== tahunVal) match = false;
                 return match;
             });
@@ -1917,8 +1943,9 @@
 
         function generateRowHTML(row, isEditing, isReadonlyView, tabId) {
             const displayStaff = getStaffDisplay(row.staff);
-            const currentStatusLower = (row.status || "").toLowerCase().trim();
-            const isCompleted = currentStatusLower === 'completed';
+            // Use normalized status for comparisons
+            const normalizedStatus = normalizeStatus(row.status);
+            const isCompleted = normalizedStatus === 'Complete';
 
             if (isEditing && !isReadonlyView) {
                 let call082HTML = "";
@@ -1930,18 +1957,18 @@
 
                 let statusSelectHTML = '';
                 if (currentUserRole === 'staff') {
-                    let isStaffCompleted = (row.status === 'Completed' || row.status === 'Pending For Approval');
+                    let isStaffCompleted = (normalizedStatus === 'Complete' || normalizedStatus === 'Pending For Approval');
                     statusSelectHTML = `
                         <select id="edit-status-${tabId}-${row.id}" class="w-full text-[11px] px-1 py-1.5 border border-theme-border rounded focus:border-theme-primary font-bold bg-theme-card text-theme-body shadow-sm transition-all">
-                            <option value="Completed" ${isStaffCompleted ? 'selected' : ''}>Completed</option>
-                            <option value="incomplete" ${!isStaffCompleted ? 'selected' : ''}>Incomplete</option>
+                            <option value="Complete" ${isStaffCompleted ? 'selected' : ''}>Complete</option>
+                            <option value="Not Complete" ${!isStaffCompleted ? 'selected' : ''}>Not Complete</option>
                         </select>
                     `;
                 } else {
-                    const statusOptionsLocal = ["Completed", "incomplete", "Pending For Approval"];
+                    const statusOptionsLocal = ["Complete", "Not Complete", "Pending For Approval"];
                     statusSelectHTML = `
                         <select id="edit-status-${tabId}-${row.id}" class="w-full text-[11px] px-1 py-1.5 border border-theme-border rounded focus:border-theme-primary font-bold bg-theme-card text-theme-body shadow-sm transition-all">
-                            ${statusOptionsLocal.map(opt => `<option value="${opt}" ${row.status === opt ? 'selected' : ''}>${opt}</option>`).join('')}
+                            ${statusOptionsLocal.map(opt => `<option value="${opt}" ${normalizedStatus === opt ? 'selected' : ''}>${opt}</option>`).join('')}
                         </select>
                     `;
                 }
@@ -1973,12 +2000,14 @@
                 `;
             }
 
-            let statusBadge = `<span class="inline-flex items-center px-2 py-1.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600 uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5"></span>${row.status || '-'}</span>`;
+            // Fallback display for unknown statuses
+            let displayStatus = normalizedStatus === "Not Complete" ? row.status || '-' : normalizedStatus;
             
-            if (isCompleted) statusBadge = `<span class="inline-flex items-center px-2 py-1.5 rounded-md text-[10px] font-bold bg-theme-success/10 text-theme-success border border-theme-success/20 uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-theme-success mr-1.5"></span>Completed</span>`;
-            else if (currentStatusLower === 'incomplete') statusBadge = `<span class="inline-flex items-center px-2 py-1.5 rounded-md text-[10px] font-bold bg-theme-danger/10 text-theme-danger border border-theme-danger/20 uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-theme-danger mr-1.5"></span>Incomplete</span>`;
-            else if (currentStatusLower === 'rejected') statusBadge = `<span class="inline-flex items-center px-2 py-1.5 rounded-md text-[10px] font-bold bg-theme-danger/10 text-theme-danger border border-theme-danger/20 uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-theme-danger mr-1.5"></span>Rejected</span>`;
-            else if (currentStatusLower === 'pending for approval') statusBadge = `<span class="inline-flex items-center px-2 py-1.5 rounded-md text-[10px] font-bold bg-theme-warning/10 text-theme-warning border border-theme-warning/20 uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-theme-warning mr-1.5"></span>Pending</span>`;
+            let statusBadge = `<span class="inline-flex items-center px-2 py-1.5 rounded-md text-[10px] font-bold bg-gray-100 text-gray-600 uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-gray-400 mr-1.5"></span>${displayStatus}</span>`;
+            
+            if (isCompleted) statusBadge = `<span class="inline-flex items-center px-2 py-1.5 rounded-md text-[10px] font-bold bg-theme-success/10 text-theme-success border border-theme-success/20 uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-theme-success mr-1.5"></span>Complete</span>`;
+            else if (normalizedStatus === 'Not Complete') statusBadge = `<span class="inline-flex items-center px-2 py-1.5 rounded-md text-[10px] font-bold bg-theme-danger/10 text-theme-danger border border-theme-danger/20 uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-theme-danger mr-1.5"></span>Not Complete</span>`;
+            else if (normalizedStatus === 'Pending For Approval') statusBadge = `<span class="inline-flex items-center px-2 py-1.5 rounded-md text-[10px] font-bold bg-theme-warning/10 text-theme-warning border border-theme-warning/20 uppercase tracking-wider shadow-sm"><span class="w-1.5 h-1.5 rounded-full bg-theme-warning mr-1.5"></span>Pending</span>`;
 
             let actionHtml = '';
             if (currentUserRole === 'rosli') {
@@ -1998,7 +2027,7 @@
                     actionHtml = `<span class="text-theme-muted/50 italic text-[10px] font-medium">—</span>`;
                 } else {
                     let editBtn = `<button type="button" onclick="editRow(${row.id}, '${tabId}')" class="text-theme-primary hover:text-white bg-theme-primary/10 hover:bg-theme-primary p-1.5 rounded-lg transition-all shadow-sm" title="Edit Record"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>`;
-                    if (isCompleted || currentStatusLower === 'pending for approval') {
+                    if (isCompleted || normalizedStatus === 'Pending For Approval') {
                         let reopenBtn = `<button type="button" onclick="reopenRecord(${row.id}, '${tabId}')" class="text-theme-warning hover:text-white bg-theme-warning/10 hover:bg-theme-warning p-1.5 rounded-lg transition-all shadow-sm" title="Return to Staff (Reopen)"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path></svg></button>`;
                         actionHtml = `<div class="flex gap-1.5 justify-center">${editBtn}${reopenBtn}</div>`;
                     } else {
@@ -2074,16 +2103,17 @@
             const index = masterData.findIndex(r => r.id === id);
             if (index === -1) { processingRows.delete(id); return; }
 
-            let newStatus = statusEl.value;
+            // Normalize the new status before saving
+            let newStatus = normalizeStatus(statusEl.value);
             let newDate = masterData[index].date;
             
             let finalStatusToSave = newStatus;
-            if (currentUserRole === 'staff' && newStatus === 'Completed') {
+            if (currentUserRole === 'staff' && newStatus === 'Complete') {
                 finalStatusToSave = 'Pending For Approval'; 
             }
 
-            const currentStatusLower = (masterData[index].status || "").toLowerCase().trim();
-            if ((newStatus === 'Completed' || finalStatusToSave === 'Pending For Approval') && currentStatusLower !== 'completed' && currentStatusLower !== 'pending for approval') {
+            const currentStatusNormalized = normalizeStatus(masterData[index].status);
+            if ((newStatus === 'Complete' || finalStatusToSave === 'Pending For Approval') && currentStatusNormalized !== 'Complete' && currentStatusNormalized !== 'Pending For Approval') {
                 const t = new Date();
                 newDate = String(t.getDate()).padStart(2, '0') + '/' + String(t.getMonth() + 1).padStart(2, '0') + '/' + t.getFullYear();
             }
@@ -2139,7 +2169,8 @@
             const rosliInput = document.getElementById(`rosli-c050-${tabId}-${id}`);
             if (rosliInput) recordToUpdate.callNo050 = rosliInput.value;
 
-            recordToUpdate.status = 'Completed';
+            // Ensure the approved status is saved cleanly
+            recordToUpdate.status = 'Complete';
             recordToUpdate.approvedBy = currentUserName;
             
             const t = new Date();
@@ -2176,7 +2207,8 @@
             if (index === -1) { processingRows.delete(id); return; }
 
             let recordToUpdate = {...masterData[index]};
-            recordToUpdate.status = 'incomplete';
+            // Ensure the reopened status is saved cleanly
+            recordToUpdate.status = 'Not Complete';
             recordToUpdate.approvedBy = '';
             recordToUpdate.approvedDate = '';
 
@@ -2201,33 +2233,39 @@
             const elTahun = document.getElementById('dash-filter-tahun');
             
             const dashFilterStaff = elStaff ? elStaff.value : tabStates['dashboard'].staff;
-            const dashFilterStatus = elStatus ? elStatus.value : tabStates['dashboard'].status;
+            // Normalize dashboard filter
+            const dashFilterStatus = elStatus ? normalizeStatus(elStatus.value) : tabStates['dashboard'].status;
             const dashFilterTahun = elTahun ? elTahun.value : tabStates['dashboard'].tahun;
 
             tabStates['dashboard'] = { staff: dashFilterStaff, status: dashFilterStatus, tahun: dashFilterTahun };
 
             const dashDataset = masterData.filter(row => {
                 if (dashFilterStaff !== "" && getStaffDisplay(row.staff) !== dashFilterStaff) return false;
-                if (dashFilterStatus !== "" && (row.status || "").toLowerCase().trim() !== dashFilterStatus.toLowerCase().trim()) return false;
+                // Use normalizeStatus for data rows
+                if (dashFilterStatus !== "" && dashFilterStatus !== "Not Complete" && normalizeStatus(row.status) !== dashFilterStatus) return false;
+                if (elStatus && elStatus.value === "" && dashFilterStatus === "Not Complete") {
+                    // Do not filter out anything if "All" is selected
+                } else if (dashFilterStatus !== "" && normalizeStatus(row.status) !== dashFilterStatus) return false;
+
                 if (dashFilterTahun !== "" && getYearFromDate(row.date) !== dashFilterTahun) return false;
                 return true;
             });
 
             const total = dashDataset.length;
-            const completed = dashDataset.filter(r => (r.status||"").toLowerCase().trim() === 'completed').length;
-            const pending = dashDataset.filter(r => (r.status||"").toLowerCase().trim().includes('pending')).length;
+            const completed = dashDataset.filter(r => normalizeStatus(r.status) === 'Complete').length;
+            const pending = dashDataset.filter(r => normalizeStatus(r.status) === 'Pending For Approval').length;
             
             const staffCounts = {};
-            const statusCounts = { 'Completed': 0, 'Pending Approval': 0, 'Incomplete': 0 };
+            const statusCounts = { 'Complete': 0, 'Pending Approval': 0, 'Not Complete': 0 };
 
             dashDataset.forEach(r => { 
                 const displayStaff = getStaffDisplay(r.staff);
                 if(displayStaff !== '-') staffCounts[displayStaff] = (staffCounts[displayStaff] || 0) + 1; 
                 
-                let chartStatus = 'Incomplete';
-                const sLower = (r.status || "").toLowerCase().trim();
-                if (sLower === 'completed') chartStatus = 'Completed';
-                else if (sLower === 'pending for approval') chartStatus = 'Pending Approval'; 
+                let chartStatus = 'Not Complete';
+                const sNormalized = normalizeStatus(r.status);
+                if (sNormalized === 'Complete') chartStatus = 'Complete';
+                else if (sNormalized === 'Pending For Approval') chartStatus = 'Pending Approval'; 
                 
                 statusCounts[chartStatus] = (statusCounts[chartStatus] || 0) + 1;
             });
@@ -2258,9 +2296,9 @@
             window.statusChartInstance = new Chart(statusCtx.getContext('2d'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['Completed', 'Pending Approval', 'Incomplete'],
+                    labels: ['Complete', 'Pending Approval', 'Not Complete'],
                     datasets: [{
-                        data: [statusCounts['Completed'], statusCounts['Pending Approval'], statusCounts['Incomplete']],
+                        data: [statusCounts['Complete'], statusCounts['Pending Approval'], statusCounts['Not Complete']],
                         backgroundColor: [successColor, warningColor, dangerColor], borderWidth: 0, hoverOffset: 8
                     }]
                 },
@@ -2430,7 +2468,8 @@
                 const cleanData = dataToExport.map(row => ({
                     "No": row.no, "Control Number": row.controlNo, "Call No (082)": row.callNo082, "Call No (050/060)": row.callNo050,
                     "Accession": row.accession, "Title": row.title, "Staff": getStaffDisplay(row.staff), "Date": formatDisplayDate(row.date),
-                    "Status": row.status, "Approved By": row.approvedBy, "Approved Date": formatDisplayDate(row.approvedDate)
+                    // Normalize the status on export so reports are clean
+                    "Status": normalizeStatus(row.status), "Approved By": row.approvedBy, "Approved Date": formatDisplayDate(row.approvedDate)
                 }));
                 const worksheet = XLSX.utils.json_to_sheet(cleanData);
                 const workbook = XLSX.utils.book_new();
@@ -2561,6 +2600,40 @@
                     })
                     .catch(err => console.log("Background branding sync failed:", err));
             }
+        });
+
+        // ==========================================
+        // PATCH: PRELOAD LOGO (CACHE & SYNC)
+        // ==========================================
+        document.addEventListener("DOMContentLoaded", () => {
+            const LOGO_CACHE_KEY = "system_logo_cache";
+            
+            // 1. Baca dari LocalStorage (Paparan segera tanpa kelip)
+            const cachedLogo = localStorage.getItem(LOGO_CACHE_KEY);
+            if (cachedLogo) {
+                document.querySelectorAll('.system-logo-img').forEach(el => el.src = cachedLogo);
+                const favicon = document.getElementById('dynamic-favicon');
+                if (favicon) favicon.href = cachedLogo;
+            }
+
+            // 2. Fetch data terbaru secara diam (Background Sync)
+            fetch(`${GAS_WEB_APP_URL}?action=getGlobalSettings`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data && !data.error && data.system_logo) {
+                        const latestLogo = data.system_logo;
+                        
+                        // 3. Jika berubah, tukar di UI dan overwrite cache
+                        if (latestLogo !== cachedLogo) {
+                            document.querySelectorAll('.system-logo-img').forEach(el => el.src = latestLogo);
+                            const favicon = document.getElementById('dynamic-favicon');
+                            if (favicon) favicon.href = latestLogo;
+                            
+                            localStorage.setItem(LOGO_CACHE_KEY, latestLogo);
+                        }
+                    }
+                })
+                .catch(err => console.log("Logo sync background task failed:", err));
         });
 
         // Initialize App
