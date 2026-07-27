@@ -1318,17 +1318,9 @@
                 'dashboard': { staff: '', status: '', tahun: '' }
             };
 
-            // PATCH: Kosongkan semua data global dan UI sementara menunggu API selesai
             masterData = [];
-            dashboardData = [];
-            recordData = [];
-            approvalData = [];
-            
-            const tbc = document.getElementById('table-body-collection'); 
-            if(tbc) tbc.innerHTML = '';
-            
-            const tba = document.getElementById('table-body-approvals'); 
-            if(tba) tba.innerHTML = '';
+            const tbc = document.getElementById('table-body-collection'); if(tbc) tbc.innerHTML = '';
+            const tba = document.getElementById('table-body-approvals'); if(tba) tba.innerHTML = '';
 
             ['collection', 'approvals'].forEach(tabId => {
                 const table = document.querySelector(`#view-${tabId} table`);
@@ -2155,8 +2147,7 @@
             recordToUpdate.approvedBy = currentUserName;
             
             const t = new Date();
-            const timeStr = t.toLocaleTimeString('en-US', { hour12: false });
-            recordToUpdate.approvedDate = String(t.getDate()).padStart(2, '0') + '/' + String(t.getMonth() + 1).padStart(2, '0') + '/' + t.getFullYear() + ' ' + timeStr;
+            recordToUpdate.approvedDate = String(t.getDate()).padStart(2, '0') + '/' + String(t.getMonth() + 1).padStart(2, '0') + '/' + t.getFullYear();
 
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
