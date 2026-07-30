@@ -2149,11 +2149,6 @@
             const t = new Date();
             recordToUpdate.approvedDate = String(t.getDate()).padStart(2, '0') + '/' + String(t.getMonth() + 1).padStart(2, '0') + '/' + t.getFullYear();
 
-            console.log("Institute:", currentInstituteKey);
-            console.log("ID:", id);
-            console.log("Index:", index);
-            console.log("Record:", recordToUpdate);
-
             fetch(GAS_WEB_APP_URL, {
                 method: 'POST', 
                 body: JSON.stringify({ action: 'updateRow', institute: currentInstituteKey, record: recordToUpdate })
