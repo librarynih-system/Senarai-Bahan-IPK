@@ -2147,6 +2147,7 @@
             recordToUpdate.approvedBy = currentUserName;
             
             const t = new Date();
+            // REMOVED THE TIME STRING TO PREVENT GOOGLE SHEET PARSING CRASHES
             recordToUpdate.approvedDate = String(t.getDate()).padStart(2, '0') + '/' + String(t.getMonth() + 1).padStart(2, '0') + '/' + t.getFullYear();
 
             fetch(GAS_WEB_APP_URL, {
@@ -2156,14 +2157,15 @@
             .then(res => res.json())
             .then(data => {
                 if(data.error) throw new Error(data.error);
-                masterData[index] = recordToUpdate;
                 
-                // Immediately remove the record from the approvals view to prevent "bouncing" (IMR issue)
+                // Immediately remove the record from the approvals view to prevent "bouncing"
                 if (tabId === 'approvals') {
                      tabStates['approvals'].filtered = tabStates['approvals'].filtered.filter(r => r.id !== id);
                 }
                 
-                applyFilters(tabId, true);
+                // Refresh data from server to ensure complete synchronization
+                fetchDataFromGoogleSheet(true); 
+                
                 showToast("Record successfully approved!");
             })
             .catch(err => { alert("Gagal: " + err.message); applyFilters(tabId, true); })
