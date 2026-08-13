@@ -876,6 +876,7 @@
         let editingId = null;
         let processingRows = new Set();
         let currentInstituteKey = ""; 
+        let dataMutationVersion = 0;
         
         const FALLBACK_LOGO = "assets/logo/default.png";
         
@@ -978,24 +979,27 @@
             cb: null,
             withSuccessHandler: function(cb) { this.cb = cb; return this; },
             
-            getInitialData: function(isSilent = false) { 
-                if (!currentInstituteKey) {
+            getInitialData: function(isSilent = false, requestInstKey = currentInstituteKey) { 
+                const localCb = this.cb;
+                this.cb = null;
+
+                if (!requestInstKey) {
                     if (!isSilent) hideLoading();
                     return;
                 }
                 
-                fetch(`${GAS_WEB_APP_URL}?action=getInitialData&institute=${currentInstituteKey}`)
+                fetch(`${GAS_WEB_APP_URL}?action=getInitialData&institute=${requestInstKey}`)
                     .then(res => {
                         if (!res.ok) throw new Error("HTTP Status " + res.status);
                         return res.json();
                     })
                     .then(data => {
                         if (data && data.error) throw new Error(data.error);
-                        if(this.cb) this.cb(data);
+                        if(localCb) localCb(data);
                     })
                     .catch(err => {
                         console.error('getInitialData Error:', err);
-                        if(this.cb) this.cb([]);
+                        if(localCb) localCb(null);
                         if(!isSilent) showToast("Failed to load records.", true);
                     })
                     .finally(() => {
@@ -1637,15 +1641,33 @@
         function fetchDataFromGoogleSheet(isSilent = false) {
             if (!currentInstituteKey) return; 
             if (!isSilent) showLoading("Syncing...");
+
+            const requestInstKey = currentInstituteKey;
+            const requestMutationVersion = dataMutationVersion;
             
             server.withSuccessHandler(function(data) {
-                if (data && Array.isArray(data)) masterData = data; 
-                else masterData = [];
+                if (data === null) return; 
+
+                if (requestInstKey !== currentInstituteKey) {
+                    console.warn("Sync ignored: Institute switched during fetch.");
+                    return;
+                }
+
+                if (requestMutationVersion !== dataMutationVersion) {
+                    console.warn("Sync ignored: Stale data due to concurrent write mutation.");
+                    return;
+                }
+
+                if (Array.isArray(data)) {
+                    masterData = data; 
+                } else {
+                    masterData = [];
+                }
                 
                 if (currentActiveTab === 'dashboard') updateDashboardStats();
                 else if (currentActiveTab === 'collection') applyFilters('collection', true); 
                 else if (currentActiveTab === 'approvals') applyFilters('approvals', true); 
-            }).getInitialData(isSilent);
+            }).getInitialData(isSilent, requestInstKey);
 
             server.getStaffData();
         }
@@ -2099,6 +2121,7 @@
             .then(res => res.json())
             .then(data => {
                 if(data.error) throw new Error(data.error);
+                dataMutationVersion++;
                 masterData[index] = updatedRecord;
                 editingId = null;
                 applyFilters(tabId, true);
@@ -2143,6 +2166,7 @@
             .then(res => res.json())
             .then(data => {
                 if(data.error) throw new Error(data.error);
+                dataMutationVersion++;
                 masterData[index] = recordToUpdate;
                 
                 // Immediately remove the record from the approvals view to prevent "bouncing" (IMR issue)
@@ -2183,6 +2207,7 @@
             .then(res => res.json())
             .then(data => {
                 if(data.error) throw new Error(data.error);
+                dataMutationVersion++;
                 masterData[index] = recordToUpdate;
                 applyFilters(tabId, true);
                 showToast("Rekod dibuka semula (Reopened)!");
