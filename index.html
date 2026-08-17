@@ -862,7 +862,7 @@
     <!-- ================== JAVASCRIPT LOGIC ================== -->
     <script>
         // Update this URL after deploying your Code.gs
-        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx-eU8ltHqsKewshhdyeQnuhcp_2rkAmNjK0FSNdP-MPerG2WiGIGE0wB8EJOChzVbq/exec"; 
+        const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwZFgtUcpTpxfuH1rYofk-ds6v2EnviFuWBMxKRMkrmTOHvVj_CzZxDISrfeLWycblO/exec"; 
         
         let masterData = []; 
         let dashboardData = []; 
@@ -1080,7 +1080,7 @@
             },
 
             uploadLogo: function(payload) {
-                showLoading("Uploading Logo to Google Drive...");
+                showLoading("Uploading Logo...");
                 fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
                     body: JSON.stringify({
@@ -1494,14 +1494,44 @@
 
             const reader = new FileReader();
             reader.onload = (e) => {
-                const preview = document.getElementById('preview-upload-logo');
-                if(preview) preview.src = e.target.result;
-                driveLogoBase64 = e.target.result;
-                const btnSave = document.getElementById('btn-save-logo');
-                if(btnSave) {
-                    btnSave.disabled = false;
-                    btnSave.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 300; // Resize to fit in Sheet cell limit
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Maintain transparency for PNG, otherwise JPEG
+                    const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+                    driveLogoBase64 = canvas.toDataURL(mime, 0.8);
+
+                    const preview = document.getElementById('preview-upload-logo');
+                    if(preview) preview.src = driveLogoBase64;
+                    
+                    const btnSave = document.getElementById('btn-save-logo');
+                    if(btnSave) {
+                        btnSave.disabled = false;
+                        btnSave.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -2543,8 +2573,6 @@
             const savedRole = localStorage.getItem('iku_role');
             const savedName = localStorage.getItem('iku_name');
             const lastActivityStr = localStorage.getItem('iku_last_activity');
-            const savedInstitute = localStorage.getItem('iku_institute');
-            const savedTab = localStorage.getItem('iku_active_tab');
 
             if (isLoggedIn === 'true' && savedRole && savedName && lastActivityStr) {
                 const idleTime = Date.now() - parseInt(lastActivityStr, 10);
@@ -2568,24 +2596,10 @@
                     }
 
                     hideElement('login-screen');
-                    
+                    showElement('institute-selection-screen', 'flex');
+
                     server.getGlobalSettings();
                     startSessionManagement();
-
-                    // Restore Institute and Tab if available
-                    if (savedInstitute && INSTITUTE_UI_CONFIG[savedInstitute]) {
-                         selectInstitute(savedInstitute);
-                         if (savedTab) {
-                             // Allow DOM to settle, then switch to the saved tab
-                             setTimeout(() => {
-                                 const tabLink = document.getElementById(`nav-link-${savedTab}`);
-                                 switchTab(savedTab, tabLink);
-                             }, 50);
-                         }
-                    } else {
-                         showElement('institute-selection-screen', 'flex');
-                    }
-                    
                     return;
                 }
             }
