@@ -1387,6 +1387,7 @@
                 localStorage.setItem('iku_loggedIn', 'true');
                 localStorage.setItem('iku_role', currentUserRole);
                 localStorage.setItem('iku_name', currentUserName);
+                sessionStorage.setItem('iku_session_active', 'true'); // NEW ENTRY CHECK
 
                 setElementText('profile-name', currentUserName);
                 setElementText('profile-initial', currentUserName.charAt(0));
@@ -1428,6 +1429,7 @@
             localStorage.removeItem('iku_last_activity');
             localStorage.removeItem('iku_institute');
             localStorage.removeItem('iku_active_tab');
+            sessionStorage.removeItem('iku_session_active'); // NEW ENTRY CHECK
 
             editingId = null; 
             currentUserRole = ""; 
@@ -2577,7 +2579,10 @@
             const savedInstitute = localStorage.getItem('iku_institute');
             const savedTab = localStorage.getItem('iku_active_tab');
 
-            if (isLoggedIn === 'true' && savedRole && savedName && lastActivityStr) {
+            // NEW ENTRY CHECK: Has the browser tab/window been closed and reopened?
+            const isSessionActive = sessionStorage.getItem('iku_session_active');
+
+            if (isLoggedIn === 'true' && savedRole && savedName && lastActivityStr && isSessionActive === 'true') {
                 const idleTime = Date.now() - parseInt(lastActivityStr, 10);
                 if (idleTime < TIMEOUT_DURATION) {
                     currentUserRole = savedRole;
@@ -2622,6 +2627,8 @@
                     return;
                 }
             }
+            
+            // If any condition fails (including it being a new tab/window without sessionStorage), force login.
             logout(); 
         }
 
