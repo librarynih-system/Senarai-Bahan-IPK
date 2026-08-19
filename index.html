@@ -1080,7 +1080,7 @@
             },
 
             uploadLogo: function(payload) {
-                showLoading("Uploading Logo to Google Drive...");
+                showLoading("Uploading Logo...");
                 fetch(GAS_WEB_APP_URL, {
                     method: 'POST',
                     body: JSON.stringify({
@@ -1288,9 +1288,9 @@
             if (currentUserRole === 'admin') showElement('admin-panel');
         }
 
-        function selectInstitute(key) {
+        function selectInstitute(key, isAutoLogin = false) {
             applyInstituteTheme(key);
-            localStorage.setItem('iku_institute', key); // Persist selected institute
+            localStorage.setItem('iku_institute', key);
             
             const sel = document.getElementById('institute-selection-screen');
             if(sel) {
@@ -1329,8 +1329,10 @@
                 }
             });
             
-            const firstLink = document.querySelector('.nav-link');
-            switchTab('dashboard', firstLink);
+            if (!isAutoLogin) {
+                const firstLink = document.querySelector('.nav-link');
+                switchTab('dashboard', firstLink);
+            }
             fetchDataFromGoogleSheet();
         }
 
@@ -1424,8 +1426,8 @@
             localStorage.removeItem('iku_role');
             localStorage.removeItem('iku_name');
             localStorage.removeItem('iku_last_activity');
-            localStorage.removeItem('iku_institute'); // Clear institute cache
-            localStorage.removeItem('iku_active_tab'); // Clear tab cache
+            localStorage.removeItem('iku_institute');
+            localStorage.removeItem('iku_active_tab');
 
             editingId = null; 
             currentUserRole = ""; 
@@ -1494,14 +1496,44 @@
 
             const reader = new FileReader();
             reader.onload = (e) => {
-                const preview = document.getElementById('preview-upload-logo');
-                if(preview) preview.src = e.target.result;
-                driveLogoBase64 = e.target.result;
-                const btnSave = document.getElementById('btn-save-logo');
-                if(btnSave) {
-                    btnSave.disabled = false;
-                    btnSave.classList.remove('opacity-50', 'cursor-not-allowed');
-                }
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_SIZE = 300; // Resize to fit in Sheet cell limit
+                    let width = img.width;
+                    let height = img.height;
+
+                    if (width > height) {
+                        if (width > MAX_SIZE) {
+                            height *= MAX_SIZE / width;
+                            width = MAX_SIZE;
+                        }
+                    } else {
+                        if (height > MAX_SIZE) {
+                            width *= MAX_SIZE / height;
+                            height = MAX_SIZE;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    const ctx = canvas.getContext('2d');
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // Maintain transparency for PNG, otherwise JPEG
+                    const mime = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+                    driveLogoBase64 = canvas.toDataURL(mime, 0.8);
+
+                    const preview = document.getElementById('preview-upload-logo');
+                    if(preview) preview.src = driveLogoBase64;
+                    
+                    const btnSave = document.getElementById('btn-save-logo');
+                    if(btnSave) {
+                        btnSave.disabled = false;
+                        btnSave.classList.remove('opacity-50', 'cursor-not-allowed');
+                    }
+                };
+                img.src = e.target.result;
             };
             reader.readAsDataURL(file);
         }
@@ -1601,13 +1633,12 @@
             if (clickedElement) {
                 clickedElement.className = 'nav-link active-tab flex items-center gap-3 px-3 py-2.5 group';
             } else {
-                 // Fallback if clickedElement is not provided (e.g. during auto-login restore)
                  const fallbackLink = document.getElementById(`nav-link-${tabId}`);
                  if (fallbackLink) fallbackLink.className = 'nav-link active-tab flex items-center gap-3 px-3 py-2.5 group';
             }
 
             currentActiveTab = tabId;
-            localStorage.setItem('iku_active_tab', currentActiveTab); // Persist active tab
+            localStorage.setItem('iku_active_tab', currentActiveTab);
             
             const pageTitle = document.getElementById('page-title');
             const pageSubtitle = document.getElementById('page-subtitle');
@@ -2543,6 +2574,8 @@
             const savedRole = localStorage.getItem('iku_role');
             const savedName = localStorage.getItem('iku_name');
             const lastActivityStr = localStorage.getItem('iku_last_activity');
+            const savedInstitute = localStorage.getItem('iku_institute');
+            const savedTab = localStorage.getItem('iku_active_tab');
 
             if (isLoggedIn === 'true' && savedRole && savedName && lastActivityStr) {
                 const idleTime = Date.now() - parseInt(lastActivityStr, 10);
@@ -2566,10 +2599,26 @@
                     }
 
                     hideElement('login-screen');
-                    showElement('institute-selection-screen', 'flex');
-
+                    
                     server.getGlobalSettings();
                     startSessionManagement();
+
+                    if (savedInstitute && INSTITUTE_UI_CONFIG[savedInstitute]) {
+                        selectInstitute(savedInstitute, true);
+                        
+                        let tabToLoad = savedTab || 'dashboard';
+                        if (tabToLoad === 'settings' && currentUserRole !== 'admin') {
+                            tabToLoad = 'dashboard';
+                        }
+                        
+                        setTimeout(() => {
+                            const tabLink = document.getElementById(`nav-link-${tabToLoad}`) || document.querySelector('.nav-link');
+                            switchTab(tabToLoad, tabLink);
+                        }, 50);
+                    } else {
+                        showElement('institute-selection-screen', 'flex');
+                    }
+                    
                     return;
                 }
             }
